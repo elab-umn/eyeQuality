@@ -6,20 +6,20 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of eyetrackingElabR is to provide functions for basic
-processing of eye tracking data. The package is designed to support a
-variety of eye tracking data sources (but was primarily tested using
-data exports from Tobii Studio and Tobii Pro).
+The goal of `eyeQuality` is to provide functions for basic processing of
+eye tracking data. The package is designed to support a variety of eye
+tracking data sources (but was primarily tested using data exports from
+Tobii Studio and Tobii Pro).
 
 ## Installation
 
 *NOTE: this will not work until the package is published on github.com*
-You can install the development version of eyetrackingElabR from
+You can install the development version of eyeQuality from
 [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("elab-umn/eyetrackingELabR")
+devtools::install_github("elab-umn/eyeQuality")
 ```
 
 ## Package Documentation
@@ -27,14 +27,13 @@ devtools::install_github("elab-umn/eyetrackingELabR")
 To access package documentation and a list of all functions run
 
 ``` r
-help(package = "eyetrackingELabR")
+help(package = "eyeQuality")
 ```
 
 ## Contributing
 
 1.  Clone github repo
-2.  Open the eyetrackingElabR.Rproj file to launch the project in
-    RStudio
+2.  Open the eyeQuality.Rproj file to launch the project in RStudio
 3.  Create a new branch (use the button on the “Git” pane in RStudio or
     use git commands in the Terminal)
 4.  Write code
