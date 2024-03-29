@@ -1,13 +1,14 @@
 Package: eyeQuality
 Title: What the Package Does (One Line, Title Case)
 Version: 1.0.0.0
-Authors@R: 
-    person("Lana", "Hantzsch", email = "hantz006@umn.edu", role = c("aut"), comment = c(ORCID = "YOUR-ORCID-ID")),
-    person("Aaron", "Glick", email = "glick094@umn.edu", role = c("aut", "cre"), comment = c(ORCID = "YOUR-ORCID-ID")), 
+Authors@R: c(
+    person("Aaron", "Glick", email = "glick094@umn.edu", role = c("aut", "cre"), comment = c(ORCID = "0000-0001-6926-7166")), 
+    person("Lana", "Hantzsch", email = "hantz006@umn.edu", role = c("aut")),
     person("Eli", "Johnson", role = c("aut")), 
-    person("Elizabeth", "Sharer", role = c("ctb")), 
+    person("Elizabeth", "Sharer", role = c("ctb")),
+    person("Caitlin", "Sisk", role = c("ctb")),
     person("Isa", "Stallworthy", role = c("ctb")), 
-    person("Jed", "Elison", email = "jtelison@umn.edu", role = c("cre", "fnd")), 
+    person("Jed", "Elison", email = "jtelison@umn.edu", role = c("cre", "fnd")))
 Description: Preprocessing R package for transparency, reproducibility, and measurement of data quality in eye tracking datasets.
 URL: https://github.com/elab-umn/eyeQuality
 BugReports: https://github.com/elab-umn/eyeQuality/issues
