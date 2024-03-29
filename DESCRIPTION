@@ -1,0 +1,41 @@
+Package: eyeQuality
+Title: What the Package Does (One Line, Title Case)
+Version: 1.0.0.0
+Authors@R: 
+    person("Lana", "Hantzsch", email = "hantz006@umn.edu", role = c("aut"), comment = c(ORCID = "YOUR-ORCID-ID")),
+    person("Aaron", "Glick", email = "glick094@umn.edu", role = c("aut", "cre"), comment = c(ORCID = "YOUR-ORCID-ID")), 
+    person("Eli", "Johnson", role = c("aut")), 
+    person("Elizabeth", "Sharer", role = c("ctb")), 
+    person("Isa", "Stallworthy", role = c("ctb")), 
+    person("Jed", "Elison", email = "jtelison@umn.edu", role = c("cre", "fnd")), 
+Description: Preprocessing R package for transparency, reproducibility, and measurement of data quality in eye tracking datasets.
+URL: https://github.com/elab-umn/eyeQuality
+BugReports: https://github.com/elab-umn/eyeQuality/issues
+License: use_gpl3_license()
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+LazyData: true
+LazyDataCompression: xz
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Imports:
+    rlang,
+    readr,
+    stringr,
+    fs,
+    readxl,
+    tidyr,
+    dplyr,
+    data.table,
+    forecast,
+    pracma,
+    zoo,
+    ggplot2,
+    ggpubr,
+    parallel,
+    purrr,
+    tibble
+Depends: 
+    R (>= 2.10)
