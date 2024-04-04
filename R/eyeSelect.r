@@ -11,9 +11,11 @@
 #' @param distLeft.Z string column name for data containing left eye distance from screen in mm (Z distance)
 #' @param distRight.Z string column name for data containing right eye distance from screen in mm  (Z distance)
 #' @param ... additional passed parameters from parent function
+#'
 #' @importFrom dplyr mutate
 #' @importFrom dplyr rowwise
 #' @importFrom rlang sym
+#'
 #' @return data
 #' @export
 #'
@@ -29,6 +31,10 @@ eyeSelect <-
            distLeft.Z = "distanceLeftZ.int",
            distRight.Z = "distanceRightZ.int",
            ...) {
+
+    # hacky way to get rid of "no visible binding for global variable" note
+    distanceZ.eyeSelect <- gazeX.eyeSelect <- gazeY.eyeSelect <- pupil.eyeSelect <- NULL
+
     #Maximize option - replace NAs if data exists for one eye and not the other
     if (eyeSelection == "Maximize") {
       print("selecting eye based on maximized approach")
@@ -125,7 +131,9 @@ eyeSelect <-
       # print(names(data))
 
       #Calculate maximized averages
-      print("calculating maximized averages for gazeX.eyeSelect, gazeY.eyeSelect, pupil.eyeSelect, and distanceZ.eyeSelect")
+      print(
+        "calculating maximized averages for gazeX.eyeSelect, gazeY.eyeSelect, pupil.eyeSelect, and distanceZ.eyeSelect"
+      )
       data <- data %>%
         dplyr::rowwise() %>%
         mutate(
@@ -217,17 +225,17 @@ eyeSelect <-
         dplyr::rowwise() %>%
         mutate(
           gazeX.eyeSelect := mean(c(
-            !!rlang::sym(gpLeft.X), !!rlang::sym(gpRight.X)
+            !!rlang::sym(gpLeft.X),!!rlang::sym(gpRight.X)
           ), na.rm = FALSE),
           gazeY.eyeSelect := mean(c(
-            !!rlang::sym(gpLeft.Y), !!rlang::sym(gpRight.Y)
+            !!rlang::sym(gpLeft.Y),!!rlang::sym(gpRight.Y)
           ), na.rm = FALSE),
           # gazeX.eyeSelect := ifelse(!! rlang::sym(gpLeft.X) == !! rlang::sym(p))
           pupil.eyeSelect := mean(c(
-            !!rlang::sym(pupilLeft), !!rlang::sym(pupilRight)
+            !!rlang::sym(pupilLeft),!!rlang::sym(pupilRight)
           ), na.rm = FALSE),
           distanceZ.eyeSelect := mean(c(
-            !!rlang::sym(distLeft.Z), !!rlang::sym(distRight.Z)
+            !!rlang::sym(distLeft.Z),!!rlang::sym(distRight.Z)
           ), na.rm = FALSE)
         )
     }
