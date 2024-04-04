@@ -2,7 +2,8 @@
 % Please edit documentation in R/batch_preprocess.R
 \name{batch_preprocess}
 \alias{batch_preprocess}
-\title{batch_preprocess is used to run the preprocessing function for a set of files in a BIDS like directory. This will process files in parallel, and compute total runtime to process.}
+\title{batch_preprocess is used to run the preprocessing function for a set of files in a BIDS like directory.
+This will process files in parallel, and compute total runtime to process.}
 \usage{
 batch_preprocess(directoryBIDS, batch_name, num_cores = NULL, ...)
 }
@@ -11,7 +12,7 @@ batch_preprocess(directoryBIDS, batch_name, num_cores = NULL, ...)
 
 \item{batch_name}{string label for what to call the batch. This will be added to the output files}
 
-\item{num_cores}{optional parameter to specify number of cores to use. If not specified, function will use 80\\% of available cores}
+\item{num_cores}{optional parameter to specify number of cores to use. If not specified, function will use 80\\\% of available cores}
 
 \item{...}{additional parameters}
 }
@@ -19,5 +20,6 @@ batch_preprocess(directoryBIDS, batch_name, num_cores = NULL, ...)
 data
 }
 \description{
-batch_preprocess is used to run the preprocessing function for a set of files in a BIDS like directory. This will process files in parallel, and compute total runtime to process.
+batch_preprocess is used to run the preprocessing function for a set of files in a BIDS like directory.
+This will process files in parallel, and compute total runtime to process.
 }

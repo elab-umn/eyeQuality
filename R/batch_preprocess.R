@@ -1,7 +1,9 @@
-#' batch_preprocess is used to run the preprocessing function for a set of files in a BIDS like directory. This will process files in parallel, and compute total runtime to process.
+#' batch_preprocess is used to run the preprocessing function for a set of files in a BIDS like directory.
+#' This will process files in parallel, and compute total runtime to process.
+#'
 #' @param directoryBIDS filepath to the BIDS directory of ET data to process
 #' @param batch_name string label for what to call the batch. This will be added to the output files
-#' @param num_cores optional parameter to specify number of cores to use. If not specified, function will use 80\% of available cores
+#' @param num_cores optional parameter to specify number of cores to use. If not specified, function will use 80\\% of available cores
 #' @param ... additional parameters
 #'
 #' @importFrom readr read_delim
