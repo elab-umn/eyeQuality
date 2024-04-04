@@ -8,11 +8,11 @@ Authors@R: c(
     person("Elizabeth", "Sharer", role = c("ctb")),
     person("Caitlin", "Sisk", role = c("ctb")),
     person("Isa", "Stallworthy", role = c("ctb")), 
-    person("Jed", "Elison", email = "jtelison@umn.edu", role = c("cre", "fnd")))
+    person("Jed", "Elison", email = "jtelison@umn.edu", role = c("fnd")))
 Description: Preprocessing R package for transparency, reproducibility, and measurement of data quality in eye tracking datasets.
 URL: https://github.com/elab-umn/eyeQuality
 BugReports: https://github.com/elab-umn/eyeQuality/issues
-License: use_gpl3_license()
+License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
