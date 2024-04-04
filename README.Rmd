@@ -13,25 +13,29 @@ knitr::opts_chunk$set(
 )
 ```
 
-# eyetrackingElabR
+# eyeQuality
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of `eyeQuality` is to provide functions for basic processing 
+The goal of *eyeQuality* is to provide functions for basic processing 
 of eye tracking data. 
 The package is designed to support a variety of eye tracking data sources (but
 was primarily tested using data exports from Tobii Studio and Tobii Pro). 
 
 
 ## Installation
-*NOTE: this will not work until the package is published on github.com*
-You can install the development version of eyeQuality from [GitHub](https://github.com/) with:
+You can install the eyeQuality from [GitHub](https://github.com/elab-umn/eyeQuality/) with:
 
 ``` r
 # install.packages("devtools")
 devtools::install_github("elab-umn/eyeQuality")
 ```
+
+Alternatively, you can install from source by downloading the package via github. Follow instructions outlined [here](https://www.dataquest.io/blog/install-package-r/)
+
+
+NOTE: Coming soon, we hope *eyeQuality* will be available to download via CRAN. We will update documentation here once available! 
 
 ## Package Documentation
 To access package documentation and a list of all functions run 
@@ -55,7 +59,7 @@ If you find any bugs or have feature requests, [open an issue on github](https:/
 Please be as detailed as possible in your issue.
 
 ## Output Variable Data Dictionary
-```{r dataDict, echo = FALSE}
+```{r dataDict, echo = FALSE, warning=FALSE}
 library(knitr)
 
 #Basic recording information definitions

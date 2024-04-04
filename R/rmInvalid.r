@@ -12,10 +12,10 @@
 #' @export
 #'
 #' @examples
-#' mydataset <- tobii_studio_example_data
-#' rmInvalidGP(mydataset, "TobiiStudio", threshold = 2)
-#' mydataset2 <- tobii_pro_example_data
-#' rmInvalidGP(mydataset2, "TobiiPro")
+#' #mydataset <- tobii_studio_example_data
+#' #rmInvalidGP(mydataset, "TobiiStudio", threshold = 2)
+#' #mydataset2 <- tobii_pro_example_data
+#' #rmInvalidGP(mydataset2, "TobiiPro")
 rmInvalidGP <- function(data, software, threshold = 2, ...) {
   #Replace invalid gazepoints with NA
   data <- ivFlag(data, eyeSelect = "left", software, threshold)

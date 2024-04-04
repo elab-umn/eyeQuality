@@ -22,8 +22,8 @@ your processed data, with Invalid GP marked as NA
 Remove invalid gazepoints
 }
 \examples{
-mydataset <- tobii_studio_example_data
-rmInvalidGP(mydataset, "TobiiStudio", threshold = 2)
-mydataset2 <- tobii_pro_example_data
-rmInvalidGP(mydataset2, "TobiiPro")
+#mydataset <- tobii_studio_example_data
+#rmInvalidGP(mydataset, "TobiiStudio", threshold = 2)
+#mydataset2 <- tobii_pro_example_data
+#rmInvalidGP(mydataset2, "TobiiPro")
 }
