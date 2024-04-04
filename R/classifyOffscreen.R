@@ -54,7 +54,7 @@ classifyOffscreen <- function(data,
                                                      data$gazeRight.offscreen, data$offscreen.eyeSelect)
 
       data <- data %>%
-        select(-offscreen.eyeSelect)
+        select(-matches("^offscreen\\.eyeSelect$"))
   }
 
     ##LEFT
