@@ -33,6 +33,14 @@ batch_preprocess <-
 
     tsv_files_to_batch_process <- list_bids_files(directoryBIDS)
 
+    print_or_save(
+      stringr::str_glue(
+        "-----------------"
+      ),
+      TRUE,
+      batch_run_summary
+    )
+
     # print(paste0("starting batch run: ", format(Sys.time(), "%Y-%m-%d %H:%M:%S")))
     print_or_save(paste0("starting batch run: ", format(Sys.time(), "%Y-%m-%d %H:%M:%S")),
                   TRUE,
@@ -113,10 +121,44 @@ batch_preprocess <-
     # completedfiles <- list_bids_derivative_files(directoryBIDS, modality_pattern = qcsummaryPattern)
     # print(completedfiles)
     # print_or_save(completedfiles, TRUE, batch_run_summary)
+    print_or_save(
+      stringr::str_glue(
+        "------ Successfully processed files (n = {length(completedfiles)}):  "
+      ),
+      TRUE,
+      batch_run_summary
+    )
     print_or_save(paste(completedfiles, collapse = "\n"),
                   TRUE,
                   batch_run_summary)
 
+    #compare list to batch process with the completed file list.
+    failedfiles <- tsv_files_to_batch_process[!grepl(gsub("\\|$", "", paste0(
+      fs::path_file(
+        gsub(qcsummaryPattern, "", completedfiles)
+      ), sep = "|", collapse = ""
+    )),
+    tsv_files_to_batch_process)]
+
+
+    print_or_save(
+      stringr::str_glue(
+        "------ Files that failed processing (n = {length(failedfiles)}):  "
+      ),
+      TRUE,
+      batch_run_summary
+    )
+    print_or_save(paste(failedfiles, collapse = "\n"),
+                  TRUE,
+                  batch_run_summary)
+
+    print_or_save(
+      stringr::str_glue(
+        "--- BATCH PROCESSING SUMMARY:  "
+      ),
+      TRUE,
+      batch_run_summary
+    )
     # print(stringr::str_glue('"directory": "{directoryBIDS}", "data size (MB)": "{get_filesizes(tsv_files_to_batch_process)}", "n (ET Files)": "{length(tsv_files_to_batch_process)}", "n (preprocessed)": "{length(completedfiles)}", "n (failed preprocessing)": "{length(tsv_files_to_batch_process)-length(completedfiles)}", "run duration": "{pipeline_timing(starttime, endtime)}",  "runtime (s)": "{get_time_difference(starttime, endtime)}"'))
     print_or_save(
       stringr::str_glue(
@@ -125,6 +167,8 @@ batch_preprocess <-
       TRUE,
       batch_run_summary
     )
+
+
 
     # sinkReset()
     # sink()
