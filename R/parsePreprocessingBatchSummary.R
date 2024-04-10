@@ -51,7 +51,7 @@ parsePreprocessingBatchSummary <-
                runDuration,
                runTime) %>%
         return()
-    } elif(info_to_extract == "failedfiles") {
+    } else if (info_to_extract == "failedfiles") {
 
     }
   }
