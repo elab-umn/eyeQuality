@@ -4,6 +4,7 @@
 #' @param subject_pattern regex match pattern for subjects
 #' @param session_pattern regex match pattern for sessions
 #' @param modality_pattern regex match pattern for specific modality
+#' @param ... additional parameters that may get passed from wrapper functions
 #'
 #' @return list of raw ET data files to in BIDS-like directory
 #' @export
@@ -12,7 +13,8 @@ list_bids_files <-
   function(directory,
            subject_pattern = "sub-[A-Z0-9]+",
            session_pattern = "ses-[0-9]+",
-           modality_pattern = NULL) {
+           modality_pattern = NULL,
+           ...) {
     subject_dirs <-
       list.dirs(directory, full.names = TRUE, recursive = FALSE)
 

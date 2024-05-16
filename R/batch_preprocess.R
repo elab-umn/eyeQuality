@@ -24,22 +24,21 @@ batch_preprocess <-
       paste0(directoryBIDS,
              paste0("/preprocessing_batch_summary_desc-", batch_name, ".txt"))
     # batch_run_out <- paste0(directoryBIDS, paste0("/preprocessing_batch_output_desc-", batch_name, ".txt"))
-
+    batch_run_debug <-
+      paste0(directoryBIDS,
+             paste0("/preprocessing_batch_debug_desc-", batch_name, ".txt"))
 
     #save outputs to file at root of directoryBIDS
     # sinkToOutputFile(batch_run_summary)
 
     starttime <- get_time()
 
-    tsv_files_to_batch_process <- list_bids_files(directoryBIDS)
+    tsv_files_to_batch_process <-
+      list_bids_files(directoryBIDS, ...)
 
-    print_or_save(
-      stringr::str_glue(
-        "-----------------"
-      ),
-      TRUE,
-      batch_run_summary
-    )
+    print_or_save(stringr::str_glue("-----------------"),
+                  TRUE,
+                  batch_run_summary)
 
     # print(paste0("starting batch run: ", format(Sys.time(), "%Y-%m-%d %H:%M:%S")))
     print_or_save(paste0("starting batch run: ", format(Sys.time(), "%Y-%m-%d %H:%M:%S")),
@@ -53,18 +52,40 @@ batch_preprocess <-
 
     # Create a cluster with multiple cores for parallel processing
     if (is.null(num_cores)) {
-      # if not specified use 80% of available cores
+      # if num_cores not specified, use the lesser to of
+      # (a) 85% of available cores or
+      # (b) number of files you need to process
       numcores <-
-        ifelse(floor(detectCores() * 0.8) == 0, 1, floor(detectCores() * 0.8))
+        ifelse(
+          #check if there are fewer files the possible number of cores
+          floor(detectCores() * 0.85) < length(tsv_files_to_batch_process),
+          ifelse(floor(detectCores() * 0.85) <= 0, #if 85% of cores <= 0, use 1 core
+                 1,
+                 floor(detectCores() * 0.85)),
+          #otherwise use 85% of available cores),
+          length(tsv_files_to_batch_process) #
+        )
     } else {
       # otherwise use specified number of cores
-      numcores <- ifelse(num_cores <= 0, 1, num_cores)
+      numcores <- ifelse(
+        num_cores < length(tsv_files_to_batch_process),
+        ifelse(num_cores <= 0, 1, num_cores),
+        length(tsv_files_to_batch_process)
+      )
     }
     # print(stringr::str_glue("number of cores = {numcores}"))
     print_or_save(stringr::str_glue("number of cores = {numcores}"),
                   TRUE,
                   batch_run_summary)
-    cl <- parallel::makeCluster(numcores, outfile = "")
+
+    if (.Platform$OS.type == "windows") {
+      # cl <- parallel::makeCluster(numcores, outfile = batch_run_debug)
+      cl <- parallel::makeCluster(numcores, outfile = "")
+    } else {
+      #should be "unix" on Linux or Mac
+      cl <-
+        parallel::makeCluster(numcores, outfile = "", type = "FORK")
+    }
 
     # Parallelize the processing of TSV files
     parallel::clusterExport(cl, "run_preprocess")  # Export the run_preprocess function to the cluster
@@ -82,9 +103,11 @@ batch_preprocess <-
             batchName = batch_name,
             ...
           ),
-          error = function(e)
+          # error = function(e)
+          error = function(e) {
             print(e)
-          # error = function(e) {print(e), print(traceback())}
+            print(traceback())
+          }
         )
         # sink()
       }
@@ -133,12 +156,13 @@ batch_preprocess <-
                   batch_run_summary)
 
     #compare list to batch process with the completed file list.
-    failedfiles <- tsv_files_to_batch_process[!grepl(gsub("\\|$", "", paste0(
-      fs::path_file(
-        gsub(qcsummaryPattern, "", completedfiles)
-      ), sep = "|", collapse = ""
-    )),
-    tsv_files_to_batch_process)]
+    failedfiles <-
+      tsv_files_to_batch_process[!grepl(gsub("\\|$", "", paste0(
+        fs::path_file(gsub(qcsummaryPattern, "", completedfiles)),
+        sep = "|",
+        collapse = ""
+      )),
+      tsv_files_to_batch_process)]
 
 
     print_or_save(
@@ -152,13 +176,9 @@ batch_preprocess <-
                   TRUE,
                   batch_run_summary)
 
-    print_or_save(
-      stringr::str_glue(
-        "--- BATCH PROCESSING SUMMARY:  "
-      ),
-      TRUE,
-      batch_run_summary
-    )
+    print_or_save(stringr::str_glue("--- BATCH PROCESSING SUMMARY:  "),
+                  TRUE,
+                  batch_run_summary)
     # print(stringr::str_glue('"directory": "{directoryBIDS}", "data size (MB)": "{get_filesizes(tsv_files_to_batch_process)}", "n (ET Files)": "{length(tsv_files_to_batch_process)}", "n (preprocessed)": "{length(completedfiles)}", "n (failed preprocessing)": "{length(tsv_files_to_batch_process)-length(completedfiles)}", "run duration": "{pipeline_timing(starttime, endtime)}",  "runtime (s)": "{get_time_difference(starttime, endtime)}"'))
     print_or_save(
       stringr::str_glue(
