@@ -1,6 +1,6 @@
-#' Categorize offScreen gazepoints based on eye selection
+#' Categorize offScreen gazepoints based on eye selection method
 #'
-#' @param eyeSelection "Maximize", "Strict", "Left", "Right"
+#' @param eyeSelection_method "Maximize", "Strict", "Left", "Right"
 #' @param gazeLeft.offscreen list of ordered gaze point offscreen assignments for left eye
 #' @param gazeRight.offscreen list of ordered gaze point offscreen assignments for right eye
 #' @param offscreen.eyeSelect list of ordered gaze point offscreen assignments for eyeSelect column
@@ -8,13 +8,13 @@
 #' @return categoryList
 #' @export
 #'
-offscreenCategory <- function(eyeSelection, gazeLeft.offscreen,
+classifyOffscreenGaze_byEyeSelection <- function(eyeSelection_method, gazeLeft.offscreen,
                               gazeRight.offscreen,
                               offscreen.eyeSelect){
   #create list of df length
   categoryList <- rep(NA, length(offscreen.eyeSelect))
 
-  if (eyeSelection == "Maximize"){
+  if (eyeSelection_method == "Maximize"){
       categoryList <-
         case_when(
           #if both gp were excluded
@@ -37,7 +37,7 @@ offscreenCategory <- function(eyeSelection, gazeLeft.offscreen,
         )
   }
 
-  if (eyeSelection == "Strict"){
+  if (eyeSelection_method == "Strict"){
     categoryList <-
       case_when(
         #when either value is NA

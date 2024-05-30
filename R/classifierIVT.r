@@ -14,16 +14,16 @@
 #' @return outputs_dfs
 #' @export
 #'
-classifierIVT <-
+classifierGazeIVT <-
   function(data,
-           input_velocity,
+           velocity,
            gazeX_va,
            gazeY_va,
-           recHz,
-           IVT_thresh = 50,
-           max_ang_adj_fix = 0.5,
-           max_time_adj_fix = 75,
-           min_fix_dur = 60,
+           recordingFrequency_hz,
+           fixationVelocityThreshold = 50,
+           maxAdjacentFixationAngle = 0.5,
+           maxAdjacentFixationTime = 75,
+           minFixationDuration = 60,
            ...) {
     ivt_env <- new.env()
 
@@ -34,25 +34,25 @@ classifierIVT <-
     fixation_flag <- TRUE
 
     print("Applying IVT Fixation Classification Algorithm...")
-    print(paste0("Thresholding Saccades: ", IVT_thresh, " VA/sec"))
+    print(paste0("Thresholding Saccades: ", fixationVelocityThreshold, " VA/sec"))
     #calculate sampling interval
-    sampling_interval <- round(1000 / recHz, 3)
+    sampling_interval <- round(1000 / recordingFrequency_hz, 3)
     #Create new IVT variables
     data$IVT.saccade <-
       data$IVT.fixation <-
       data$class <-
       data$class.adj <-
       data$class.adj.shortfix <-
-      rep(NA, length(data[[input_velocity]]))
+      rep(NA, length(data[[velocity]]))
 
     #Initial classification based on euclidean velocity
-    data$class[which(is.na(data[[input_velocity]]))] <- "missing"
-    data$class[which(data[[input_velocity]] > IVT_thresh)] <-
+    data$class[which(is.na(data[[velocity]]))] <- "missing"
+    data$class[which(data[[velocity]] > fixationVelocityThreshold)] <-
       "saccade"
-    data$class[which(data[[input_velocity]] <= IVT_thresh)] <-
+    data$class[which(data[[velocity]] <= fixationVelocityThreshold)] <-
       "fixation"
     #mark valid gazepoints with no velocity calculated as "unclassified"
-    data$class[which(is.na(data[[input_velocity]]) &
+    data$class[which(is.na(data[[velocity]]) &
                        !is.na(data[[gazeX_va]]))] <- "unclassified"
 
 
@@ -69,7 +69,7 @@ classifierIVT <-
       invisible(list2env(findFixationIndices(data$class), envir = ivt_env))
 
       # Load proposed fixations and merge fixations that are very close both spatially and temporally
-      # data[,c("class.adj","class.adj.euc","class.adj.gap.dur","class.adj.xva","class.adj.yva","class.adj.num","class.adj.dur")] <- mergeAdj(data, entry.class = data$class, rle_fix_index, xcoords = data[[gazeX_va]], ycoords = data[[gazeY_va]], end.fix, start.fix, lengths.fix, max_ang_adj_fix, max_time_adj_fix)
+      # data[,c("class.adj","class.adj.euc","class.adj.gap.dur","class.adj.xva","class.adj.yva","class.adj.num","class.adj.dur")] <- mergeAdjacentFixations(data, entry.class = data$class, rle_fix_index, xcoords = data[[gazeX_va]], ycoords = data[[gazeY_va]], end.fix, start.fix, lengths.fix, max_ang_adj_fix, max_time_adj_fix)
       data[, c(
         "class.adj",
         "class.adj.euc",
@@ -79,17 +79,17 @@ classifierIVT <-
         "class.adj.num",
         "class.adj.dur"
       )] <-
-        mergeAdj(
+        mergeAdjacentFixations(
           data,
-          entry.class = data$class,
+          entryClass = data$class,
           ivt_env$rle_fix_index,
-          xcoords = data[[gazeX_va]],
-          ycoords = data[[gazeY_va]],
-          ivt_env$end.fix,
-          ivt_env$start.fix,
-          ivt_env$lengths.fix,
-          max_ang_adj_fix,
-          max_time_adj_fix
+          gazeX = data[[gazeX_va]],
+          gazeY = data[[gazeY_va]],
+          fixationEnd = ivt_env$end.fix,
+          fixationStart = ivt_env$start.fix,
+          fixationLength = ivt_env$lengths.fix,
+          mergeDistance_va = maxAdjacentFixationAngle,
+          mergeTimeGap_ms = maxAdjacentFixationTime
         )
       if (sum(data$class.adj %in% "fixation") == 0) {
         fixation_flag <- FALSE
@@ -104,7 +104,7 @@ classifierIVT <-
 
         #Load proposed fixations and remove small fixations
         data[, c("class.adj.shortfix")] <- NA
-        # data[,c("class.adj.shortfix","class.adj.euc","class.adj.gap.dur","class.adj.xva","class.adj.yva","class.adj.num","class.adj.dur")] <- removeShortfix(data, entry.class = data$class.adj, rle_fix_index, end.fix, start.fix, lengths.fix, min_fix_dur)
+        # data[,c("class.adj.shortfix","class.adj.euc","class.adj.gap.dur","class.adj.xva","class.adj.yva","class.adj.num","class.adj.dur")] <- removeShortFixations(data, entry.class = data$class.adj, rle_fix_index, end.fix, start.fix, lengths.fix, min_fix_dur)
         data[, c(
           "class.adj.shortfix",
           "class.adj.euc",
@@ -114,14 +114,14 @@ classifierIVT <-
           "class.adj.num",
           "class.adj.dur"
         )] <-
-          removeShortfix(
+          removeShortFixations(
             data,
-            entry.class = data$class.adj,
-            ivt_env$rle_fix_index,
-            ivt_env$end.fix,
-            ivt_env$start.fix,
-            ivt_env$lengths.fix,
-            min_fix_dur
+            entryClass = data$class.adj,
+            rleFixIndex = ivt_env$rle_fix_index,
+            fixationEnd = ivt_env$end.fix,
+            fixationStart = ivt_env$start.fix,
+            fixationLength = ivt_env$lengths.fix,
+            shortFixationThreshold_ms = minFixationDuration
           )
         if (sum(data$class.adj.shortfix %in% "fixation") == 0) {
           fixation_flag <- FALSE

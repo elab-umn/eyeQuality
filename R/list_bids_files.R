@@ -1,19 +1,19 @@
-#' list_bids_files - get list of all ET like files.
+#' listBidsFiles - get list of all ET like files.
 #'
 #' @param directory path for data file as .tsv
-#' @param subject_pattern regex match pattern for subjects
-#' @param session_pattern regex match pattern for sessions
-#' @param modality_pattern regex match pattern for specific modality
+#' @param subjectPattern_regex regex match pattern for subjects
+#' @param sessionPattern_regex regex match pattern for sessions
+#' @param modalityPattern_regex regex match pattern for specific modality
 #' @param ... additional parameters that may get passed from wrapper functions
 #'
 #' @return list of raw ET data files to in BIDS-like directory
 #' @export
 #'
-list_bids_files <-
+listBidsFiles <-
   function(directory,
-           subject_pattern = "sub-[A-Z0-9]+",
-           session_pattern = "ses-[0-9]+",
-           modality_pattern = NULL,
+           subjectPattern_regex = "sub-[A-Z0-9]+",
+           sessionPattern_regex = "ses-[0-9]+",
+           modalityPattern_regex = NULL,
            ...) {
     subject_dirs <-
       list.dirs(directory, full.names = TRUE, recursive = FALSE)
@@ -21,17 +21,17 @@ list_bids_files <-
     files <- list()
 
     for (subject_dir in subject_dirs) {
-      if (grepl(subject_pattern, subject_dir)) {
+      if (grepl(subjectPattern_regex, subject_dir)) {
         session_dirs <-
           list.dirs(subject_dir,
                     full.names = TRUE,
                     recursive = FALSE)
         for (session_dir in session_dirs) {
-          if (!is.null(session_pattern) &&
-              !grepl(session_pattern, session_dir)) {
+          if (!is.null(sessionPattern_regex) &&
+              !grepl(sessionPattern_regex, session_dir)) {
             next
           }
-          if (is.null(modality_pattern)) {
+          if (is.null(modalityPattern_regex)) {
             tsv_files <-
               list.files(session_dir,
                          pattern = "\\.tsv$",
@@ -40,7 +40,7 @@ list_bids_files <-
           } else {
             modality_files <-
               list.files(session_dir,
-                         pattern = modality_pattern,
+                         pattern = modalityPattern_regex,
                          full.names = TRUE)
             files <- c(files, modality_files)
           }

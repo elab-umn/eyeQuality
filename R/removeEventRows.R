@@ -1,4 +1,4 @@
-#' Run removeEventRows, after you have ran rmInvalidGP function to standardize data values.
+#' Run extractEventRows, after you have ran rmInvalidGP function to standardize data values.
 #'
 #' @param data dataframe
 #' @param software Tobii Software version
@@ -9,7 +9,7 @@
 #' @return a list: 1. dataframe with only gazestream data extracted, 2. dataframe with only event data extracted
 #'
 
-removeEventRows <- function(data, software, ...) {
+extractEventRows <- function(data, software, ...) {
   if (software == "TobiiPro") {
     gazeStreamData <- data %>%
       dplyr::filter(.data$Sensor == "Eye Tracker")

@@ -1,10 +1,10 @@
-#' Calculate Velocity
+#' Calculate Velocity in Visual Angle
 #'
 #' Establish timestamps and
 #'
 #' @param data dataframe
-#' @param xcoord string, column containing x coordinates of gaze stream, converted to visual angle
-#' @param ycoord string, column containing y coordinates of gaze stream, converted to visual angle
+#' @param gazeX_va string, column containing x coordinates of gaze stream in visual angles
+#' @param gazeY_va string, column containing y coordinates of gaze stream in visual angles
 #' @param timestamp string, column containing recording timestamps in ms
 #' @param ... additional passed parameters from parent function
 #'
@@ -13,15 +13,15 @@
 #' @return data a dataframe with calculated velocity for gaze X and gaze Y and euclidean distance
 #' @export
 #'
-calcVel <- function(data, xcoord, ycoord, timestamp, ...) {
+calculateVelocity_va_ms <- function(data, gazeX_va, gazeY_va, timestamp, ...) {
   print("Calculating velocity...")
   #define velocity new column names
   x.vel <- "velocityX_va_ms"
   y.vel <- "velocityY_va_ms"
 
   #specify data stream from column titles
-  xstream <- data[[xcoord]]
-  ystream <- data[[ycoord]]
+  xstream <- data[[gazeX_va]]
+  ystream <- data[[gazeY_va]]
   timestamps <- data[[timestamp]]
 
   #You should calculate in visual angle space, not pixels

@@ -1,37 +1,36 @@
-# calculate visual angle
-#' Title
+#' calculate visual angle from pixels
 #'
 #' @param data dataframe
-#' @param display.resx int display resolution for width in px
-#' @param display.resy int display resolution for height in px
-#' @param display.dimx int display width in mm
-#' @param display.dimy int display height in mm
+#' @param displayResolutionX_px int display resolution for width in px
+#' @param displayResolutionY_px int display resolution for height in px
+#' @param displayDimensionX_mm int display width in mm
+#' @param displayDimensionY_mm int display height in mm
 #' @param gazeX string column name of gazepoints on X axis
 #' @param gazeY string column name of gazepoints on Y axis
-#' @param distZ string column name of distance from screen for each timepoint
+#' @param distanceZ string column name of distance from screen for each timepoint
 #' @param ... additional passed parameters from parent function
 #'
-#' @return data dataframe with calculated visual angles in columns appended .va
+#' @return data_va dataframe with calculated visual angles in columns appended _va
 #' @export
 #'
-calcVA <-
+calculateGaze_va <-
   function(data,
-           display.resx,
-           display.resy,
-           display.dimx,
-           display.dimy,
+           displayResolutionX_px,
+           displayResolutionY_px,
+           displayDimensionX_mm,
+           displayDimensionY_mm,
            gazeX,
            gazeY,
-           distZ,
+           distanceZ,
            ...) {
     print("Calculating VA...")
-    data1 <- data
+    data_va <- data
 
     #calculate visual angle
-    data1$gazeX_va <-
-      round(visAngle(data[[gazeX]], data[[distZ]], display.resx, display.dimx), 2)
-    data1$gazeY_va <-
-      round(visAngle(data[[gazeY]], data[[distZ]], display.resy, display.dimy), 2)
+    data_va$gazeX_va <-
+      round(calculateVisualAngle(data[[gazeX]], data[[distanceZ]], displayResolutionX_px, displayDimensionX_mm), 2)
+    data_va$gazeY_va <-
+      round(calculateVisualAngle(data[[gazeY]], data[[distanceZ]], displayResolutionY_px, displayDimensionY_mm), 2)
 
-    return(data1)
+    return(data_va)
   }

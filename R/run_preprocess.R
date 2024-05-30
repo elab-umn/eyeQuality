@@ -1,12 +1,13 @@
-#' Wrapper - run all preprocessing functions
+#' eyeQuality wrapper - run all preprocessing functions
 #'
 #' @param filepath path for data file as .tsv
-#' @param display.dimx integer of display width in millimeters. For example our 1920x1080 screen has a width of 594 mm
-#' @param display.dimy integer of display height in millimeters. For example our 1920x1080 screen has a width of 344 mm
+#' @param displayDimensionX_mm integer of display width in millimeters. For example our 1920x1080 screen has a width of 594 mm
+#' @param displayDimensionY_mm integer of display height in millimeters. For example our 1920x1080 screen has a width of 344 mm
 #' @param data instead of passing a filepath, you can pass a data frame with your loaded data. Default NULL
-#' @param eyeSelection string with possible values "Maximize", "Strict", "Left", or "Right". Default "Maximize"
-#' @param noise_reduction Boolean indicating if we should run denoise script
-#' @param savedata Boolean indicating if we should suppress output, and save data to files
+#' @param eyeSelection_method string with possible values "Maximize", "Strict", "Left", or "Right". Default "Maximize"
+#' @param smoothGaze_boolean Boolean indicating if we should run smoothGaze script
+#' @param maxValidityThreshold a numeric (0, 1, 2, 3, or 4) describing what validity rating is considered acceptable - Only applicable if software = "TobiiStudio"
+#' @param saveData Boolean indicating if we should suppress output, and save data to files
 #' @param includeIntermediates Boolean indicating if column outputs from all intermediate steps of the preprocessing should be included. Default = FALSE
 #' @param firstEvent optional String of the first event marker to include. Default NULL
 #' @param lastEvent optional String of the last event marker to include. Default NULL
@@ -21,13 +22,14 @@
 #' @return preprocessed data
 #' @export
 
-run_preprocess <- function(filepath,
-                           display.dimx,
-                           display.dimy,
+eyeQuality <- function(filepath,
+                           displayDimensionX_mm,
+                           displayDimensionY_mm,
                            data = NULL,
-                           eyeSelection = "Maximize",
-                           noise_reduction = TRUE,
-                           savedata = FALSE,
+                           eyeSelection_method = "Maximize",
+                           smoothGaze_boolean = TRUE,
+                           maxValidityThreshold = 2,
+                           saveData = FALSE,
                            includeIntermediates = FALSE,
                            firstEvent = NULL,
                            lastEvent = NULL,
@@ -36,16 +38,16 @@ run_preprocess <- function(filepath,
                            batchName = NULL,
                            ...) {
   #Wrapper
-  runtime_start <- get_time()
+  runtime_start <- getCurrentTime()
 
   namedargs <- list(
     filepath = filepath,
-    display.dimx = display.dimx,
-    display.dimy = display.dimy,
+    displayDimensionX_mm = displayDimensionX_mm,
+    displayDimensionY_mm = displayDimensionY_mm,
     data = data,
     eyeSelection = eyeSelection,
-    noise_reduction = noise_reduction,
-    savedata = savedata,
+    smoothGaze_boolean = smoothGaze_boolean,
+    saveData = saveData,
     firstEvent = firstEvent,
     lastEvent = lastEvent,
     timeStart = timeStart,
@@ -54,7 +56,7 @@ run_preprocess <- function(filepath,
   args <- list(...)
   args <- append(args, namedargs)
 
-  if (savedata) {
+  if (saveData) {
     #get file path for run log
     # runtime_Log <- create_new_filename(filepath, "_RUNLOG", ".txt")
     runtime_Log <-
@@ -74,11 +76,11 @@ run_preprocess <- function(filepath,
     (runtime_Log <- NULL)
 
   argList <-
-    paste0("run_preprocess(",
+    paste0("eyeQuality(",
            paste(stringr::str_glue("{names(args)} = {args}"), collapse = ", "),
            ")")
   print(paste0("command run: \n", argList))
-  # print_or_save(argList, savedata, runtime_Log)
+  # print_or_save(argList, saveData, runtime_Log)
 
   #load data
   if (is.null(data)) {
@@ -88,38 +90,38 @@ run_preprocess <- function(filepath,
   }
 
   #data <- sampleTobiiProTbl #for test data
-  runtime_loadData <- get_time()
+  runtime_loadData <- getCurrentTime()
   print(
     stringr::str_glue(
-      "--- 01. importData complete. (run duration: {pipeline_timing(runtime_start, runtime_loadData)})"
+      "--- 01. importData complete. (run duration: {getPipelineTiming(runtime_start, runtime_loadData)})"
     )
   )
-  # print_or_save(stringr::str_glue("--- 01. importData complete. (run duration: {pipeline_timing(runtime_start, runtime_loadData)})"), savedata, runtime_Log)
+  # print_or_save(stringr::str_glue("--- 01. importData complete. (run duration: {getPipelineTiming(runtime_start, runtime_loadData)})"), saveData, runtime_Log)
 
   #detect software
   software <- detectImportSourceType(data)
-  runtime_detectImportSourceType <- get_time()
+  runtime_detectImportSourceType <- getCurrentTime()
   print(
     stringr::str_glue(
-      "--- 02. detectImportSourceType returns software = {software}. (run duration: {pipeline_timing(runtime_loadData, runtime_detectImportSourceType)})"
+      "--- 02. detectImportSourceType returns software = {software}. (run duration: {getPipelineTiming(runtime_loadData, runtime_detectImportSourceType)})"
     )
   )
-  # print_or_save(stringr::str_glue("--- 02. detectImportSourceType returns software = {software}. (run duration: {pipeline_timing(runtime_loadData, runtime_detectImportSourceType)})"), savedata, runtime_Log)
+  # print_or_save(stringr::str_glue("--- 02. detectImportSourceType returns software = {software}. (run duration: {getPipelineTiming(runtime_loadData, runtime_detectImportSourceType)})"), saveData, runtime_Log)
 
   #format data to standard columns across software
-  data <- formatCols(data, software)
+  data <- standardizeColumnNames(data, software)
 
-  runtime_formatCols <- get_time()
+  runtime_standardizeColumnNames <- getCurrentTime()
   print(
     stringr::str_glue(
-      "--- 03. formatCols complete. (run duration: {pipeline_timing(runtime_detectImportSourceType, runtime_formatCols)})"
+      "--- 03. standardizeColumnNames complete. (run duration: {getPipelineTiming(runtime_detectImportSourceType, runtime_standardizeColumnNames)})"
     )
   )
-  # print_or_save(stringr::str_glue("--- 03. formatCols complete. (run duration: {pipeline_timing(runtime_detectImportSourceType, runtime_formatCols)})"), savedata, runtime_Log)
+  # print_or_save(stringr::str_glue("--- 03. standardizeColumnNames complete. (run duration: {getPipelineTiming(runtime_detectImportSourceType, runtime_standardizeColumnNames)})"), saveData, runtime_Log)
 
   #Check that any valid gaze data exists. If not, abort.
-  leftDataExists <- checkGazeData(data, "gazeLeftX", ...)
-  rightDataExists <- checkGazeData(data, "gazeRightX", ...)
+  leftDataExists <- checkGazeDataExists(data, gazeColumn = "gazeLeftX", ...)
+  rightDataExists <- checkGazeDataExists(data, gazeColumn = "gazeRightX", ...)
   if (!leftDataExists & !rightDataExists){
     print(
       paste0("No valid gaze data exists. Preprocessing for file",
@@ -130,29 +132,29 @@ run_preprocess <- function(filepath,
     stop()
   }
 
-  runtime_checkGazeData <- get_time()
+  runtime_checkGazeDataExists <- getCurrentTime()
   print(
     stringr::str_glue(
-      "--- 04. checkGazeData complete. (run duration: {pipeline_timing(runtime_formatCols, runtime_checkGazeData)})"
+      "--- 04. checkGazeDataExists complete. (run duration: {getPipelineTiming(runtime_standardizeColumnNames, runtime_checkGazeDataExists)})"
     )
   )
 
   #save & remove event rows
-  data_list <- removeEventRows(data, software)
+  data_list <- extractEventRows(data, software)
   data <- data_list[[1]] #gazestream data
   eventData <- data_list[[2]] #event data
 
-  runtime_removeEventRows <- get_time()
+  runtime_extractEventRows <- getCurrentTime()
   print(
     stringr::str_glue(
-      "--- 05. removeEventRows complete. (run duration: {pipeline_timing(runtime_formatCols, runtime_removeEventRows)})"
+      "--- 05. extractEventRows complete. (run duration: {getPipelineTiming(runtime_standardizeColumnNames, runtime_extractEventRows)})"
     )
   )
-  # print_or_save(stringr::str_glue("--- 04. removeEventRows complete. (run duration: {pipeline_timing(runtime_formatCols, runtime_removeEventRows)})"), savedata, runtime_Log)
+  # print_or_save(stringr::str_glue("--- 04. extractEventRows complete. (run duration: {getPipelineTiming(runtime_standardizeColumnNames, runtime_extractEventRows)})"), saveData, runtime_Log)
 
   #check timestamp data is correctly ordered
   ordered <-
-    checkTimestamps(data, timestamps = "recordingTimestamp_ms")
+    checkOrderedTimestamps(data, timestamps = "recordingTimestamp_ms")
   if (!ordered) {
     print(
       paste0(
@@ -161,19 +163,9 @@ run_preprocess <- function(filepath,
         " has been aborted."
       )
     )
-    # print_or_save(paste0("Data is not chronologically ordered based on timestamp. Pre-processing for file ", filepath, " has been aborted."), savedata, runtime_Log)
+    # print_or_save(paste0("Data is not chronologically ordered based on timestamp. Pre-processing for file ", filepath, " has been aborted."), saveData, runtime_Log)
     stop()
   }
-
-  ####Temporary code to set event labels for E-Lab tasks
-  if (software == "TobiiPro") {
-    firstEvent <- "VideoStimulusStart"
-    lastEvent <- "VideoStimulusEnd"
-  } else if (software == "TobiiStudio") {
-    firstEvent <- "MovieStart"
-    lastEvent <- "MovieEnd"
-  }
-  ####Temporary code end
 
   #Specify start and end timestamp for task
   if (!isempty(firstEvent) & !isempty(lastEvent)) {
@@ -184,16 +176,16 @@ run_preprocess <- function(filepath,
                     ...)
     if (length(taskTimes) == 2 &&
         !anyNA(taskTimes) && taskTimes[[1]] < taskTimes[[2]]) {
-      data <- setTimeRange(data, taskTimes[[1]], taskTimes[[2]], ...)
-      runtime_setTimeRange <- get_time()
+      data <- setTimestamps(data, taskTimes[[1]], taskTimes[[2]], ...)
+      runtime_setTimestamps <- getCurrentTime()
       print(
         stringr::str_glue(
-          "--- 05a. setTimeRange complete based on event parameter inputs. (run duration: {pipeline_timing(runtime_removeEventRows, runtime_setTimeRange)})"
+          "--- 05a. setTimestamps complete based on event parameter inputs. (run duration: {getPipelineTiming(runtime_extractEventRows, runtime_setTimestamps)})"
         )
       )
-      # print_or_save(stringr::str_glue("--- 04a. setTimeRange complete based on event parameter inputs. (run duration: {pipeline_timing(runtime_removeEventRows, runtime_setTimeRange)})"), savedata, runtime_Log)
+      # print_or_save(stringr::str_glue("--- 04a. setTimestamps complete based on event parameter inputs. (run duration: {getPipelineTiming(runtime_extractEventRows, runtime_setTimestamps)})"), saveData, runtime_Log)
     } else {
-      runtime_setTimeRange <- get_time()
+      runtime_setTimestamps <- getCurrentTime()
       print(
         paste0(
           "Start or end timestamps could not be identified. Pre-processing for file ",
@@ -201,43 +193,44 @@ run_preprocess <- function(filepath,
           " aborted."
         )
       )
-      # print_or_save(paste0("Start or end timestamps could not be identified. Pre-processing for file ", filepath, " aborted."), savedata, runtime_Log)
+      # print_or_save(paste0("Start or end timestamps could not be identified. Pre-processing for file ", filepath, " aborted."), saveData, runtime_Log)
       stop()
     }
   } else if (!isempty(timeStart) & !isempty(timeEnd)) {
-    data <- setTimeRange(data, timeStart, timeEnd, ...)
+    data <- setTimestamps(data, timeStart, timeEnd, ...)
     print(
       stringr::str_glue(
-        "--- 05b. setTimeRange complete based on timestamp inputs. (run duration: {pipeline_timing(runtime_removeEventRows, runtime_setTimeRange)})"
+        "--- 05b. setTimestamps complete based on timestamp inputs. (run duration: {getPipelineTiming(runtime_extractEventRows, runtime_setTimestamps)})"
       )
     )
-    # print_or_save(stringr::str_glue("--- 04b. setTimeRange complete based on timestamp inputs. (run duration: {pipeline_timing(runtime_removeEventRows, runtime_setTimeRange)})"), savedata, runtime_Log)
+    # print_or_save(stringr::str_glue("--- 04b. setTimestamps complete based on timestamp inputs. (run duration: {getPipelineTiming(runtime_extractEventRows, runtime_setTimestamps)})"), saveData, runtime_Log)
   } else {
-    runtime_setTimeRange <- get_time()
+    runtime_setTimestamps <- getCurrentTime()
     print("No time range specified. Running pre-processing on full data file.")
-    # print_or_save("No time range specified. Running pre-processing on full data file.", savedata, runtime_Log)
+    # print_or_save("No time range specified. Running pre-processing on full data file.", saveData, runtime_Log)
   }
 
   #Calculate recording Hz
-  recHz <- calcHz(data)
-  runtime_calcHz <- get_time()
+  recordingFrequency_hz <- calculateFrequency_hz(data)
+  runtime_calculateFrequency_hz <- getCurrentTime()
   print(
     stringr::str_glue(
-      "--- 06. calcHZ returns recHz = {recHz}. (run duration: {pipeline_timing(runtime_setTimeRange, runtime_calcHz)})"
+      "--- 06. calculateFrequency_hz returns recordingFrequency_hz = {recordingFrequency_hz}. (run duration: {getPipelineTiming(runtime_setTimestamps, runtime_calculateFrequency_hz)})"
     )
   )
-  # print_or_save(stringr::str_glue("--- 05. calcHZ returns recHz = {recHz}. (run duration: {pipeline_timing(runtime_setTimeRange, runtime_calcHz)})"), savedata, runtime_Log)
+  # print_or_save(stringr::str_glue("--- 05. calculateFrequecny_hz returns recordingFrequency_hz = {recordingFrequency_hz}. (run duration: {getPipelineTiming(runtime_setTimestamps, runtime_calculateFrequency_hz)})"), saveData, runtime_Log)
 
   #Mark invalid datapoints as NA
   ##check - create a function to mark event placeholders as NA?'
-  data <- rmInvalidGP(data, software, ...)
-  runtime_rmInvalidGP <- get_time()
+  data <- removeInvalidGaze(data, whichEye = "left", software, maxValidityThreshold)
+  data <- removeInvalidGaze(data, whichEye = "right", software, maxValidityThreshold)
+  runtime_removeInvalidGaze <- getCurrentTime()
   print(
     stringr::str_glue(
-      "--- 07. rmInvalidGP complete. (run duration: {pipeline_timing(runtime_calcHz, runtime_rmInvalidGP)})"
+      "--- 07. removeInvalidGaze complete. (run duration: {getPipelineTiming(runtime_calculateFrequency_hz, runtime_removeInvalidGaze)})"
     )
   )
-  # print_or_save(stringr::str_glue("--- 06. rmInvalidGP complete. (run duration: {pipeline_timing(runtime_calcHz, runtime_rmInvalidGP)})"), savedata, runtime_Log)
+  # print_or_save(stringr::str_glue("--- 06. removeInvalidGaze complete. (run duration: {getPipelineTiming(runtime_calculateFrequency_hz, runtime_removeInvalidGaze)})"), saveData, runtime_Log)
 
   #flag off-screen gazepoints (in pixel space)
   #get resolution
@@ -247,39 +240,39 @@ run_preprocess <- function(filepath,
     as.numeric(unique(data$resolutionHeight[!is.na(data$resolutionHeight)]))
   #mark out-of-range offscreen gp for each eye
   data <-
-    rmOffscreenGP(
+    removeOffscreenGaze(
       data,
       gazeX = "gazeLeftX",
       gazeY = "gazeLeftY",
-      distZ = "distanceLeftZ",
+      distanceZ = "distanceLeftZ",
       overwrite = c("pupilLeft"),
-      display.resx,
-      display.resy,
-      display.dimx,
-      display.dimy,
+      displayResolutionX_px,
+      displayResolutionY_px,
+      displayDimensionX_mm,
+      displayDimensionY_mm,
       ...
     )
   data <-
-    rmOffscreenGP(
+    removeOffscreenGaze(
       data,
       gazeX = "gazeRightX",
       gazeY = "gazeRightY",
-      distZ = "distanceRightZ",
+      distanceZ = "distanceRightZ",
       overwrite = c("pupilRight"),
-      display.resx,
-      display.resy,
-      display.dimx,
-      display.dimy,
+      displayResolutionX_px,
+      displayResolutionY_px,
+      displayDimensionX_mm,
+      displayDimensionY_mm,
       ...
     )
 
-  runtime_rmOffscreenGP <- get_time()
+  runtime_removeOffscreenGaze <- getCurrentTime()
   print(
     stringr::str_glue(
-      "--- 08. rmOffscreenGP complete. (run duration: {pipeline_timing(runtime_rmInvalidGP, runtime_rmOffscreenGP)})"
+      "--- 08. removeOffscreenGaze complete. (run duration: {getPipelineTiming(runtime_removeInvalidGaze, runtime_removeOffscreenGaze)})"
     )
   )
-  # print_or_save(stringr::str_glue("--- 07. detectOffscreenGP complete. (run duration: {pipeline_timing(runtime_rmInvalidGP, runtime_detectOffscreenGP)})"), savedata, runtime_Log)
+  # print_or_save(stringr::str_glue("--- 07. detectOffscreenGaze complete. (run duration: {getPipelineTiming(runtime_removeInvalidGaze, runtime_detectOffscreenGaze)})"), saveData, runtime_Log)
 
   #interpolation
   intCols <-
@@ -293,54 +286,51 @@ run_preprocess <- function(filepath,
       "pupilLeft",
       "pupilRight"
     )
-  data <- fillGaps(data, recHz, intCols, ...)
-  runtime_fillGaps <- get_time()
+  data <- interpolateGaze(data, recordingFrequency_hz, columnsToInterpolate, ...)
+  runtime_interpolateGaze <- getCurrentTime()
   print(
     stringr::str_glue(
-      "--- 09. fillGaps complete. (run duration: {pipeline_timing(runtime_rmOffscreenGP, runtime_fillGaps)})"
+      "--- 09. interpolateGaze complete. (run duration: {getPipelineTiming(runtime_removeOffscreenGaze, runtime_interpolateGaze)})"
     )
   )
-  # print_or_save(stringr::str_glue("--- 08. fillGaps complete. (run duration: {pipeline_timing(runtime_detectOffscreenGP, runtime_fillGaps)})"), savedata, runtime_Log)
+  # print_or_save(stringr::str_glue("--- 08. interpolateGaze complete. (run duration: {getPipelineTiming(runtime_detectOffscreenGaze, runtime_interpolateGaze)})"), saveData, runtime_Log)
 
   #blink detection
-  if (eyeSelection == "Maximize" || eyeSelection == "Strict") {
-    data <-
-      detectBlinks(data,
+  data <-
+    classifyBlinks(data,
                    pupilLeft = "pupilLeft.int",
                    pupilRight = "pupilRight.int",
-                   recHz,
+                   recordingFrequency_hz,
                    ...)
+  if (eyeSelection_method == "Maximize" || eyeSelection_method == "Strict") {
     data$blink.classification <- data$bothEyes.blink
   }
-  else if (eyeSelection == "Left") {
-    data <- detectBlinks(data, pupil_cols = "pupilLeft.int", recHz, ...)
+  else if (eyeSelection_method == "Left") {
     data$blink.classification <- data$pupilLeft.blink
   }
-  else if (eyeSelection == "Right") {
-    data <-
-      detectBlinks(data, pupil_cols = "pupilRight.int", recHz, ...)
+  else if (eyeSelection_method == "Right") {
     data$blink.classification <- data$pupilRight.blink
   }
-  runtime_detectBlinks <- get_time()
+  runtime_classifyBlinks <- getCurrentTime()
   print(
     stringr::str_glue(
-      "--- 10. detectBlinks complete. (run duration: {pipeline_timing(runtime_fillGaps, runtime_detectBlinks)})"
+      "--- 10. classifyBlinks complete. (run duration: {getPipelineTiming(runtime_interpolateGaze, runtime_classifyBlinks)})"
     )
   )
-  # print_or_save(stringr::str_glue("--- 09. detectBlinks complete. (run duration: {pipeline_timing(runtime_fillGaps, runtime_detectBlinks)})"), savedata, runtime_Log)
+  # print_or_save(stringr::str_glue("--- 09. classifyBlinks complete. (run duration: {getPipelineTiming(runtime_interpolateGaze, runtime_classifyBlinks)})"), saveData, runtime_Log)
 
   #eye selection
-  data <- eyeSelect(data, eyeSelection = eyeSelection, ...)
-  runtime_eyeSelect <- get_time()
+  data <- eyeSelection(data, eyeSelection_method = eyeSelection_method, ...)
+  runtime_eyeSelection <- getCurrentTime()
   print(
     stringr::str_glue(
-      "--- 11. eyeSelect complete. (run duration: {pipeline_timing(runtime_detectBlinks, runtime_eyeSelect)})"
+      "--- 11. eyeSelection complete. (run duration: {getPipelineTiming(runtime_classifyBlinks, runtime_eyeSelection)})"
     )
   )
-  # print_or_save(stringr::str_glue("--- 10. eyeSelect complete. (run duration: {pipeline_timing(runtime_detectBlinks, runtime_eyeSelect)})"), savedata, runtime_Log)
+  # print_or_save(stringr::str_glue("--- 10. eyeSelection complete. (run duration: {getPipelineTiming(runtime_classifyBlinks, runtime_eyeSelection)})"), saveData, runtime_Log)
 
   #Check that valid gaze data exists after selection
-  dataExists <- checkGazeData(data, "gazeX.eyeSelect", ...)
+  dataExists <- checkGazeDataExists(data, gazeColumn = "gazeX.eyeSelect", ...)
   if (!dataExists){
     print(
       paste0("No valid gaze data exists after eye selection. Preprocessing for file",
@@ -351,108 +341,108 @@ run_preprocess <- function(filepath,
     stop()
   }
 
-  runtime_checkGazeData2 <- get_time()
+  runtime_checkGazeDataExists2 <- getCurrentTime()
   print(
     stringr::str_glue(
-      "--- 12. checkGazeData complete. (run duration: {pipeline_timing(runtime_eyeSelect, runtime_checkGazeData2)})"
+      "--- 12. checkGazeDataExists complete. (run duration: {getPipelineTiming(runtime_eyeSelection, runtime_checkGazeDataExists2)})"
     )
   )
 
   #Classify all data as onscreen or offscreen (exclusionary / within range)
-  data <- classifyOffscreen(data, display.resx, display.resy, eyeSelection, ...)
+  data <- classifyOffscreenGaze(data, displayResolutionX_px, displayResolutionY_px, eyeSelection_method, ...)
 
-  runtime_classifyOffscreen <- get_time()
+  runtime_classifyOffscreenGaze <- getCurrentTime()
   print(
     stringr::str_glue(
-      "--- 13. classifyOffscreen complete. (run duration: {pipeline_timing(runtime_checkGazeData2, runtime_classifyOffscreen)})"
+      "--- 13. classifyOffscreenGaze complete. (run duration: {getPipelineTiming(runtime_checkGazeDataExists2, runtime_classifyOffscreenGaze)})"
     )
   )
   #smoothing - denoise function
-  input_cols <-
+  columnsToSmooth <-
     colnames(data)[grepl("\\.eyeSelect$", colnames(data), ignore.case = TRUE)]   #get interpolated column names
-  # noise_reduction_check <- ifelse(("noise_reduction" %in% names(args)) & noise_reduction == FALSE, FALSE, TRUE) #by default we denoise
+  # noise_reduction_check <- ifelse(("smoothGaze_boolean" %in% names(args)) & smoothGaze_boolean == FALSE, FALSE, TRUE) #by default we denoise
   data <-
-    denoise(data, recHz, input_cols, noise_reduction = noise_reduction, ...)
-  runtime_denoise <- get_time()
+    smoothGaze(data, recordingFrequency_hz, columnsToSmooth, smoothGaze_boolean = smoothGaze_boolean, ...)
+  runtime_smoothGaze <- getCurrentTime()
   print(
     stringr::str_glue(
-      "--- 13. denoise complete. (run duration: {pipeline_timing(runtime_classifyOffscreen, runtime_denoise)})"
+      "--- 13. smoothGaze complete. (run duration: {getPipelineTiming(runtime_classifyOffscreenGaze, runtime_smoothGaze)})"
     )
   )
-  # print_or_save(stringr::str_glue("--- 11. denoise complete. (run duration: {pipeline_timing(runtime_eyeSelect, runtime_denoise)})"), savedata, runtime_Log)
+  # print_or_save(stringr::str_glue("--- 11. smoothGaze complete. (run duration: {getPipelineTiming(runtime_eyeSelection, runtime_smoothGaze)})"), saveData, runtime_Log)
 
   #calculate visual angle
-  if (noise_reduction) {
+  if (smoothGaze_boolean) {
     data <-
-      calcVA(
+      calculateGaze_va(
         data,
-        display.resx,
-        display.resy,
-        display.dimx,
-        display.dimy,
+        displayResolutionX_px,
+        displayResolutionY_px,
+        displayDimensionX_mm,
+        displayDimensionY_mm,
         gazeX = "gazeX.smooth",
         gazeY = "gazeY.smooth",
-        distZ = "distanceZ.smooth",
+        distanceZ = "distanceZ.smooth",
         ...
       )
   }
-  else if (!noise_reduction) {
+  else if (!smoothGaze_boolean) {
     data <-
-      calcVA(
+      calculateGaze_va(
         data,
-        display.resx,
-        display.resy,
-        display.dimx,
-        display.dimy,
+        displayResolutionX_px,
+        displayResolutionY_px,
+        displayDimensionX_mm,
+        displayDimensionY_mm,
         gazeX = "gazeX.eyeSelect",
         gazeY = "gazeY.eyeSelect",
-        distZ = "distanceZ.eyeSelect",
+        distanceZ = "distanceZ.eyeSelect",
         ...
       )
   }
-  runtime_calcVA <- get_time()
+  runtime_calculateGaze_va <- getCurrentTime()
   print(
     stringr::str_glue(
-      "--- 14. calcVA complete. (run duration: {pipeline_timing(runtime_denoise, runtime_calcVA)})"
+      "--- 14. calculateGaze_va complete. (run duration: {getPipelineTiming(runtime_smoothGaze, runtime_calculateGaze_va)})"
     )
   )
-  # print_or_save(stringr::str_glue("--- 12. calcVA complete. (run duration: {pipeline_timing(runtime_denoise, runtime_calcVA)})"), savedata, runtime_Log)
+  # print_or_save(stringr::str_glue("--- 12. calculateGaze_va complete. (run duration: {getPipelineTiming(runtime_smoothGaze, runtime_calculateGaze_va)})"), saveData, runtime_Log)
 
   #calculate velocity (using VA calculated gaze points)
   data <-
-    calcVel(data,
-            xcoord = "gazeX_va",
-            ycoord = "gazeY_va",
+    calculateVelocity_va_ms(data,
+            gazeX_va = "gazeX_va",
+            gazeY_va = "gazeY_va",
             timestamp = "recordingTimestamp_ms",
             ...)
-  runtime_calcVel <- get_time()
+  runtime_calculateVelocity_va_ms <- getCurrentTime()
   print(
     stringr::str_glue(
-      "--- 15. calcVel complete. (run duration: {pipeline_timing(runtime_calcVA, runtime_calcVel)})"
+      "--- 15. calculateVelocity_va_ms complete. (run duration: {getPipelineTiming(runtime_calculateGaze_va, runtime_calculateVelocity_va_ms)})"
     )
   )
-  # print_or_save(stringr::str_glue("--- 13. calcVel complete. (run duration: {pipeline_timing(runtime_calcVA, runtime_calcVel)})"), savedata, runtime_Log)
+  # print_or_save(stringr::str_glue("--- 13. calculateVelocity_va_ms complete. (run duration: {getPipelineTiming(runtime_calculateGaze_va, runtime_calculateVelocity_va_ms})"), saveData, runtime_Log)
 
   ##smooth velocity
   velCols <-
     colnames(data)[grepl("_va_ms", colnames(data), ignore.case = TRUE)]  #get velocity columns
-  data <- smoothVel(data, recHz, velCols, ...)
-  runtime_smoothVel <- get_time()
+  data <- smoothVelocity(data, recordingFrequency_hz, velocity, ...)
+  runtime_smoothVelocity <- getCurrentTime()
   print(
     stringr::str_glue(
-      "--- 16. smoothVel complete. (run duration: {pipeline_timing(runtime_calcVel, runtime_smoothVel)})"
+      "--- 16. smoothVelocity complete. (run duration: {getPipelineTiming(runtime_calculateVelocity_va_ms, runtime_smoothVelocity)})"
     )
   )
-  # print_or_save(stringr::str_glue("--- 14. smoothVel complete. (run duration: {pipeline_timing(runtime_calcVel, runtime_smoothVel)})"), savedata, runtime_Log)
+  # print_or_save(stringr::str_glue("--- 14. smoothVelocity complete. (run duration: {getPipelineTiming(runtime_calculateVelocity_va_ms, runtime_smoothVelocity)})"), saveData, runtime_Log)
 
-  #filter -  classifierIVT from Liz, includes mergeAdj, removeShortfix
+  #filter -  classifyGazeIVT from Liz, includes mergeAdj, removeShortfix
   IVT_list <-
-    classifierIVT(
+    classifyGazeIVT(
       data,
-      input_velocity = "velocityEuclidean.smooth_va_ms",
+      velocity = "velocityEuclidean.smooth_va_ms",
       gazeX_va = "gazeX_va",
       gazeY_va = "gazeY_va",
-      recHz = recHz,
+      recordingFrequency_hz = recordingFrequency_hz,
       ...
     )
   #Summarized IVT file
@@ -462,110 +452,110 @@ run_preprocess <- function(filepath,
   #All metrics IVT file
   data_IVT_all <- IVT_list[[2]]
 
-  runtime_classifierIVT <- get_time()
+  runtime_classifyGazeIVT <- getCurrentTime()
   print(
     stringr::str_glue(
-      "--- 17. classifierIVT complete. (run duration: {pipeline_timing(runtime_smoothVel, runtime_classifierIVT)})"
+      "--- 17. classifyGazeIVT complete. (run duration: {getPipelineTiming(runtime_smoothVelocity, runtime_classifyGazeIVT)})"
     )
   )
-  # print_or_save(stringr::str_glue("--- 15. classifierIVT complete. (run duration: {pipeline_timing(runtime_smoothVel, runtime_classifierIVT)})"), savedata, runtime_Log)
+  # print_or_save(stringr::str_glue("--- 15. classifyGazeIVT complete. (run duration: {getPipelineTiming(runtime_smoothVelocity, runtime_classifyGazeIVT)})"), saveData, runtime_Log)
 
   #Assign final column labels
-  data <- assignFinalCols(data, noise_reduction, ...)
+  data <- assignFinalColumnNames(data, smoothGaze_boolean, ...)
 
-  runtime_assignFinalCols <- get_time()
+  runtime_assignFinalColumnNames <- getCurrentTime()
   print(
     stringr::str_glue(
-      "--- 18. assignFinalCols complete. (run duration: {pipeline_timing(runtime_classifierIVT, runtime_assignFinalCols)})"
+      "--- 18. assignFinalColumnNames complete. (run duration: {getPipelineTiming(runtime_classifyGazeIVT, runtime_assignFinalColumnNames)})"
     )
   )
 
   #get final runtime
-  runtime_final <- get_time()
+  runtime_final <- getCurrentTime()
   print(
     stringr::str_glue(
-      "--- PREPROCESSING COMPLETE (preprocessing run duration: {pipeline_timing(runtime_start, runtime_final)})"
+      "--- PREPROCESSING COMPLETE (preprocessing run duration: {getPipelineTiming(runtime_start, runtime_final)})"
     )
   )
-  # print_or_save(stringr::str_glue("--- PREPROCESSING COMPLETE (preprocessing run duration: {pipeline_timing(runtime_start, runtime_final)})"), savedata, runtime_Log)
+  # print_or_save(stringr::str_glue("--- PREPROCESSING COMPLETE (preprocessing run duration: {getPipelineTiming(runtime_start, runtime_final)})"), saveData, runtime_Log)
 
 
   #data quality - robustness, contiguity, precision, %missingness, etc...
   summaryMetrics <- calculateOutputMetrics(data)
-  runtime_calcOutputMetrics <- get_time()
+  runtime_calcOutputMetrics <- getCurrentTime()
   print(
     stringr::str_glue(
-      "--- OUTPUT METRICS CALCULATED (total run duration: {pipeline_timing(runtime_start, runtime_calcOutputMetrics)})"
+      "--- OUTPUT METRICS CALCULATED (total run duration: {getPipelineTiming(runtime_start, runtime_calcOutputMetrics)})"
     )
   )
-  # print_or_save(stringr::str_glue("--- OUTPUT METRICS CALCULATED (total run duration: {pipeline_timing(runtime_start, runtime_calcOutputMetrics)})"), savedata, runtime_Log)
+  # print_or_save(stringr::str_glue("--- OUTPUT METRICS CALCULATED (total run duration: {getPipelineTiming(runtime_start, runtime_calcOutputMetrics)})"), saveData, runtime_Log)
 
   times <- list(
     start = runtime_start,
     loadData = runtime_loadData,
     detectSourceType = runtime_detectImportSourceType,
-    formatCols = runtime_formatCols,
-    removeEventRows = runtime_removeEventRows,
-    setTimeRange = runtime_setTimeRange,
-    calcHz = runtime_calcHz,
-    rmInvalidGP = runtime_rmInvalidGP,
-    # detectOffscreenGP = runtime_detectOffscreenGP,
-    detectOffscreenGP = runtime_rmOffscreenGP,
-    fillGaps = runtime_fillGaps,
-    detectBlinks = runtime_detectBlinks,
-    eyeSelect = runtime_eyeSelect,
-    denoise = runtime_denoise,
-    calcVA = runtime_calcVA,
-    calcVel = runtime_calcVel,
-    smoothVel = runtime_smoothVel,
-    classifierIVT = runtime_classifierIVT,
+    standardizeColumnNames = runtime_standardizeColumnNames,
+    extractEventRows = runtime_extractEventRows,
+    setTimestamps = runtime_setTimestamps,
+    calculateFrequency_hz = runtime_calculateFrequency_hz,
+    removeInvalidGaze = runtime_removeInvalidGaze,
+    # detectOffscreenGaze = runtime_detectOffscreenGaze,
+    detectOffscreenGaze = runtime_rmOffscreenGaze,
+    interpolateGaze = runtime_interpolateGaze,
+    classifyBlinks = runtime_classifyBlinks,
+    eyeSelection = runtime_eyeSelection,
+    smoothGaze = runtime_smoothGaze,
+    calculateGaze_va = runtime_calculateGaze_va,
+    calculateVelocity_va_ms = runtime_calculateVelocity_va_ms,
+    smoothVelocity = runtime_smoothVelocity,
+    classifyGazeIVT = runtime_classifyGazeIVT,
     final = runtime_final,
     calcOutputMetrics = runtime_calcOutputMetrics,
-    total = get_time()
+    total = getCurrentTime()
   )
 
   durations <- list(
-    loadData_duration = get_time_difference(runtime_start, runtime_loadData, units =
+    loadData_duration = calculateTimeDifference(runtime_start, runtime_loadData, units =
                                               "secs"),
-    detectSourceType_duration = get_time_difference(runtime_loadData, runtime_detectImportSourceType, units =
+    detectSourceType_duration = calculateTimeDifference(runtime_loadData, runtime_detectImportSourceType, units =
                                                       "secs"),
-    formatCols_duration = get_time_difference(runtime_detectImportSourceType, runtime_formatCols, units =
+    standardizeColumnNames_duration = calculateTimeDifference(runtime_detectImportSourceType, runtime_standardizeColumnNames, units =
                                                 "secs"),
-    removeEventRows_duration = get_time_difference(runtime_formatCols, runtime_removeEventRows, units =
+    extractEventRows_duration = calculateTimeDifference(runtime_standardizeColumnNames, runtime_extractEventRows, units =
                                                      "secs"),
-    setTimeRange_duration = get_time_difference(runtime_removeEventRows, runtime_setTimeRange, units =
+    setTimestamps_duration = calculateTimeDifference(runtime_extractEventRows, runtime_setTimestamps, units =
                                                   "secs"),
-    calcHz_duration = get_time_difference(runtime_setTimeRange, runtime_calcHz, units =
+    calculateFrequency_hz_duration = calculateTimeDifference(runtime_setTimestamps, runtime_calculateFrequency_hz, units =
                                             "secs"),
-    rmInvalidGP_duration = get_time_difference(runtime_calcHz, runtime_rmInvalidGP, units =
+    removeInvalidGaze_duration = calculateTimeDifference(runtime_calculateFrequency_hz, runtime_removeInvalidGaze, units =
                                                  "secs"),
-    # detectOffscreenGP_duration = get_time_difference(runtime_rmInvalidGP, runtime_detectOffscreenGP, units =
+    # detectOffscreenGaze_duration = calculateTimeDifference(runtime_removeInvalidGaze, runtime_detectOffscreenGaze, units =
     #                                                    "secs"),
-    detectOffscreenGP_duration = get_time_difference(runtime_rmInvalidGP, runtime_rmOffscreenGP, units =
+    detectOffscreenGaze_duration = calculateTimeDifference(runtime_removeInvalidGaze, runtime_removeOffscreenGaze, units =
                                                        "secs"),
-    # fillGaps_duration = get_time_difference(runtime_detectOffscreenGP, runtime_fillGaps, units =
+    # interpolateGaze_duration = calculateTimeDifference(runtime_detectOffscreenGaze, runtime_interpolateGaze, units =
     #                                           "secs"),
-    fillGaps_duration = get_time_difference(runtime_rmOffscreenGP, runtime_fillGaps, units =
+    interpolateGaze_duration = calculateTimeDifference(runtime_removeOffscreenGaze, runtime_interpolateGaze, units =
                                               "secs"),
-    detectBlinks_duration = get_time_difference(runtime_fillGaps, runtime_detectBlinks, units =
+    classifyBlinks_duration = calculateTimeDifference(runtime_interpolateGaze, runtime_classifyBlinks, units =
                                                   "secs"),
-    eyeSelect_duration = get_time_difference(runtime_detectBlinks, runtime_eyeSelect, units =
+    eyeSelection_duration = calculateTimeDifference(runtime_classifyBlinks, runtime_eyeSelection, units =
                                                "secs"),
-    denoise_duration = get_time_difference(runtime_eyeSelect, runtime_denoise, units =
+    smoothGaze_duration = calculateTimeDifference(runtime_eyeSelection, runtime_smoothGaze, units =
                                              "secs"),
-    calcVA_duration = get_time_difference(runtime_denoise, runtime_calcVA, units =
+    calculateGaze_va_duration = calculateTimeDifference(runtime_smoothGaze, runtime_calculateGaze_va, units =
                                             "secs"),
-    calcVel_duration = get_time_difference(runtime_calcVA, runtime_calcVel, units =
+    calculateVelocity_va_ms_duration = calculateTimeDifference(runtime_calculateGaze_va, runtime_calculateVelocity_va_ms, units =
                                              "secs"),
-    smoothVel_duration = get_time_difference(runtime_calcVel, runtime_smoothVel, units =
+    smoothVelocity_duration = calculateTimeDifference(runtime_calculateVelocity_va_ms, runtime_smoothVelocity, units =
                                                "secs"),
-    classifierIVT_duration = get_time_difference(runtime_smoothVel, runtime_classifierIVT, units =
+    classifyGazeIVT_duration = calculateTimeDifference(runtime_smoothVelocity, runtime_classifyGazeIVT, units =
                                                    "secs"),
-    final_duration = get_time_difference(runtime_classifierIVT, runtime_final, units =
+    final_duration = calculateTimeDifference(runtime_classifyGazeIVT, runtime_final, units =
                                            "secs"),
-    calcOutputMetrics_duration = get_time_difference(runtime_final, runtime_calcOutputMetrics, units =
+    calcOutputMetrics_duration = calculateTimeDifference(runtime_final, runtime_calcOutputMetrics, units =
                                                        "secs"),
-    total_duration = get_time_difference(runtime_start, runtime_calcOutputMetrics, units =
+    total_duration = calculateTimeDifference(runtime_start, runtime_calcOutputMetrics, units =
                                            "secs")
   )
 
@@ -585,7 +575,7 @@ run_preprocess <- function(filepath,
     data <- removeIntermediateCols(data, ...)
   }
 
-  if (savedata) {
+  if (saveData) {
     #save event data
     # saveFiles(filepath, args, data, eventData, timingData, summaryMetrics, batchName)
     saveFiles(filepath,

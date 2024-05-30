@@ -1,10 +1,9 @@
-#' Gap fill-in (interpolation)
-# Drawing from Eli's MATLAB code interpolateGazepointGaps to interpolate all x and y (left and right) gazepoint time-series within data (saving out as new columns) for gaps that don't exceed maxGap
+#' Interpolate gaps in gaze data
 #'
 #' @param data dataframe
-#' @param recHz recording Hz (calculated in calcHz)
-#' @param intCols list of column names to be interpolated
-#' @param max_gap_length integer for max ms of gaps to interpolate over. Default value 50ms (pg. 119 Liz's dissertation)
+#' @param recordingFrequency_hz recording Hz (calculated in calculateFrequency_hz)
+#' @param columnsToInterpolate list of column names to be interpolated
+#' @param maxGapLength_ms integer for max ms of gaps to interpolate over. Default value 50ms (pg. 119 Liz's dissertation)
 #' @param ... additional passed parameters from parent function
 #'
 #' @importFrom zoo na.approx
@@ -13,31 +12,31 @@
 #' @export
 #
 
-fillGaps <-
-  function(data, recHz, intCols, max_gap_length = 50, ...) {
+interpolateGaze <-
+  function(data, recordingFrequency_hz, columnsToInterpolate, maxGapLength_ms = 50, ...) {
     # gap duration / sampling rate = number of samples in gap to update
-    sampling.dur <- 1000 / recHz
-    max_gap_points <- floor(max_gap_length / sampling.dur)
+    sampling.dur <- 1000 / recordingFrequency_hz
+    maxGapPoints <- floor(maxGapLength_ms / sampling.dur)
     print(
       paste(
         "Filling in gaps of ",
-        max_gap_length,
+        maxGapLength_ms,
         "ms. For your sampling rate, this is equivalent to ",
-        max_gap_points,
+        maxGapPoints,
         " gaze points",
         sep = ""
       )
     )
 
     #Create new names for cols
-    newCols <- paste0(intCols, ".int")
+    newCols <- paste0(columnsToInterpolate, ".int")
 
     #na.approx replaces NAs by interpolation
-    for (int in 1:length(intCols)) {
+    for (int in 1:length(columnsToInterpolate)) {
       n <- newCols[int]
       i <- intCols[int]
       data[[n]] <-
-        round(na.approx(data[[i]], na.rm = FALSE, maxgap = max_gap_points), 2)
+        round(na.approx(data[[i]], na.rm = FALSE, maxgap = maxGapPoints), 2)
     }
 
 

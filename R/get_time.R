@@ -1,9 +1,9 @@
-#' get_time - get current time
+#' getCurrentTime - get current time
 #'
 #' @return timestamp in seconds, from sys.time()
 #' @export
 #'
 
-get_time <- function() {
+getCurrentTime <- function() {
   return(Sys.time())
 }

@@ -3,59 +3,59 @@
 #' @param data your dataframe
 #' @param gazeX string column containing name of variable with X gaze data
 #' @param gazeY string column containing name of variable with Y gaze data
-#' @param distZ string column containing name of variable with Z distance data in mm
+#' @param distanceZ string column containing name of variable with Z distance data in mm
 #' @param overwrite optional list of column names in addition to gaze columns which should be replaced by NA when offscreen. Default = NA
-#' @param display.resx X Display resolution in pixels
-#' @param display.resy Y Display resolution in pixels
-#' @param display.dimx X Display dimension in mm
-#' @param display.dimy Y Display dimension in mm
-#' @param valid_offscreen integer Degrees of Visual angle outside of screen which can be kept as valid. Default = 5 VA
+#' @param displayResolutionX_px X Display resolution in pixels
+#' @param displayResolutionY_px Y Display resolution in pixels
+#' @param displayDimensionX_mm X Display dimension in mm
+#' @param displayDimensionY_mm Y Display dimension in mm
+#' @param offscreenValidityRange_va integer Degrees of Visual angle outside of screen which can be kept as valid. Default = 5 VA
 #' @param ... additional arguments are of either the form value or tag = value. Component names are created based on the tag (if present) or the deparsed argument itself.
 #'
 #' @return data
 #' @export
 #'
-rmOffscreenGP <-
+removeOffscreenGaze <-
   function(data,
            gazeX,
            gazeY,
-           distZ,
+           distanceZ,
            overwrite = NA,
-           display.resx,
-           display.resy,
-           display.dimx,
-           display.dimy,
-           valid_offscreen = 5,
+           displayResolutionX_px,
+           displayResolutionY_px,
+           displayDimensionX_mm,
+           displayDimensionY_mm,
+           offscreenValidityRange_va = 5,
            ...) {
     #get participant's median distance from screen
-    medZ = median(data[[distZ]], na.rm = TRUE)
+    medZ = median(data[[distanceZ]], na.rm = TRUE)
 
     #get new acceptable boundaries
     display.vax <-
-      round(visAngle(display.resx, medZ, display.resx, display.dimx), 2) + valid_offscreen
+      round(calculateVisualAngle(displayResolutionX_px, medZ, displayResolutionX_px, displayDimensionX_mm), 2) + offscreenValidityRange_va
     display.vay <-
-      round(visAngle(display.resy, medZ, display.resy, display.dimy), 2) + valid_offscreen
+      round(calculateVisualAngle(displayResolutionY_px, medZ, displayResolutionY_px, displayDimensionY_mm), 2) + offscreenValidityRange_va
 
     #set acceptable boundaries in pixel space
     resx.max <-
-      va2pixels(display.vax, medZ, display.resx, display.dimx)
+      convertVisualAngToPixels(display.vax, medZ, displayResolutionX_px, displayDimensionX_mm)
     resx.min <-
-      va2pixels(-display.vax, medZ, display.resx, display.dimx)
+      convertVisualAngToPixels(-display.vax, medZ, displayResolutionX_px, displayDimensionX_mm)
     resy.max <-
-      va2pixels(display.vay, medZ, display.resy, display.dimy)
+      convertVisualAngToPixels(display.vay, medZ, displayResolutionY_px, displayDimensionY_mm)
     resy.min <-
-      va2pixels(-display.vay, medZ, display.resy, display.dimy)
+      convertVisualAngToPixels(-display.vay, medZ, displayResolutionY_px, displayDimensionY_mm)
 
     #get list to label datapoints as on or offscreen, based on acceptable boundaries
     invalid_offscreen <-
-      detectOffscreenGP(
+      detectOffscreenGaze(
         data,
         gazeX,
         gazeY,
-        display.resx = resx.max,
-        display.resy = resy.max,
-        display.resx.min = resx.min,
-        display.resy.min = resy.min
+        displayResolutionX_px = resx.max,
+        displayResolutionY_px = resy.max,
+        minDisplayResolutionX_px = resx.min,
+        minDisplayResolutionY_px = resy.min
       )
 
     #mark as NA

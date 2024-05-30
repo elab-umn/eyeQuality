@@ -10,7 +10,7 @@
 #' @return dataframe containing only data within the specified timeframe
 #' @export
 #'
-setTimeRange <-
+setTimestamps <-
   function(data, timeStart, timeEnd, setTimes = TRUE, ...) {
     if (setTimes) {
       data <- data %>%

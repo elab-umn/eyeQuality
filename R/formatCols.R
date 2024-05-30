@@ -1,4 +1,4 @@
-#' Run mapData or direct to custom mapping
+#' Run renameColumns or direct to custom mapping
 #'
 #' @param data dataframe
 #' @param software "TobiiStudio" or "TobiiPro"
@@ -7,10 +7,10 @@
 #' @importFrom rlang .data
 #' @return your reformatted data with standardized column names (Event, EventValue, RecordingDuration, ResolutionHeight, ResolutionWidth, EyeTrackerTimestamp, RecordingTimestamp, GazePointLeftX, GazePointLeftY, GazePointRightX, GazePointRightY, EyePosLeftX, EyePosLeftY, EyePosLeftZ, EyePosRightX, EyePosRightY, EyePosRightZ, PupilLeft, PupilRight, ValidityLeft, ValidityRight)
 #'
-formatCols <- function(data, software) {
+standardizeColumnNames <- function(data, software) {
   if (str_detect(software, "TobiiStudio") |
       str_detect(software, "TobiiPro")) {
-    mapData(data, software)
+    renameColumns(data, software)
   }
   else
     stop(

@@ -15,21 +15,21 @@
 #' @return data with smoothed gazepoint, distance, and pupilolmetry
 #' @export
 #'
-denoise <-
+smoothGaze <-
   function(data,
-           recHz,
-           input_cols,
-           smooth_window_ms = 20,
-           noise_reduction = TRUE,
+           recordingFrequency_hz,
+           columnsToSmooth,
+           smoothingWindow_ms = 20,
+           smoothGaze_boolean = TRUE,
            ...) {
     #update default smoothing window- not sure on value
-    if (noise_reduction) {
-      sampling_dur <- 1000 / recHz
-      smooth_window <- floor(smooth_window_ms / sampling_dur)
+    if (smoothGaze_boolean) {
+      sampling_dur <- 1000 / recordingFrequency_hz
+      smooth_window <- floor(smoothingWindow_ms / sampling_dur)
       print(
         paste(
           "denoising using rolling average window of ",
-          smooth_window_ms,
+          smoothingWindow_ms,
           "ms. For your sampling rate, this is equivalent to ",
           smooth_window,
           " gaze points",
@@ -42,7 +42,7 @@ denoise <-
       }
 
       #create list for smooth column names
-      smooth_cols <- input_cols
+      smooth_cols <- columnsToSmooth
       #add ".smooth" to column names, but remove ".eyeSelect" if present in column names
       for (sc in 1:length(smooth_cols)){
         i_col <- smooth_cols[sc]
@@ -54,7 +54,7 @@ denoise <-
 
       #run smoothing on window for gaze, va, dist, pupils
       for (sm in 1:length(input_cols)) {
-        eCol <- input_cols[sm] #set interpolated column name
+        eCol <- columnsToSmooth[sm] #set interpolated column name
         sCol <- smooth_cols[sm] #set smoothed column name
         data[sCol] <-
           append(append(rep(NA, trunc(

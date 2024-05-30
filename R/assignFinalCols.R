@@ -6,10 +6,10 @@
 #'
 #' @return data
 #'
-assignFinalCols <- function(data,
-                            noise_reduction,
+assignFinalColumnNames <- function(data,
+                            smoothGaze_boolean,
                             ...){
-  if (noise_reduction){
+  if (smoothGaze_boolean){
     #final gaze pixel columns
     data$gazeX.preprocessed_px <- data$gazeX.smooth
     data$gazeY.preprocessed_px <- data$gazeY.smooth

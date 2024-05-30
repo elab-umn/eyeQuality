@@ -3,10 +3,10 @@
 #' @param data dataframe
 #' @param pupilLeft name of columns containing left pupil data to be analyzed
 #' @param pupilRight name of columns containing right pupil data to be analyzed
-#' @param recHz integer from calcHz.R
-#' @param artifact_length integer maximum length of valid data segment to be considered an artifact
-#' @param blink_length_min_ms integer min value for missing that could be considered a blink
-#' @param blink_length_max_ms integer max value for missing that could be considered a blink
+#' @param recordingFrequency_hz integer from calculateFrequency_hz.R
+#' @param maxArtifactLength_ms integer maximum length of valid data segment to be considered an artifact
+#' @param minBlinkLength_ms integer min value for missing that could be considered a blink
+#' @param maxBlinkLength_ms integer max value for missing that could be considered a blink
 #' @param ... additional arguments are of either the form value or tag = value. Component names are created based on the tag (if present) or the deparsed argument itself.
 #'
 #' @importFrom forecast ma
@@ -35,13 +35,13 @@
 # 7.	Demarcate blinks in data frame
 # 8.  Create composite blink column (if data for both pupils is input)
 
-detectBlinks <- function(data,
+classifyBlinks <- function(data,
                          pupilLeft = "pupilLeft.int",
                          pupilRight = "pupilRight.int",
-                         recHz,
-                         artifact_length = 15,
-                         blink_length_min_ms = 100,
-                         blink_length_max_ms = 400,
+                         recordingFrequency_hz,
+                         maxArtifactLength_ms = 15,
+                         minBlinkLength_ms = 100,
+                         maxBlinkLength_ms = 400,
                          ...) {
   # This adaptation to R was made with the supervision and encouragement of Dr William Paul Boyce.
   # For more information about this adaptation and for more R solutions, don't hesitate to contact him: paul.boyce@ntu.edu.sg
@@ -50,14 +50,14 @@ detectBlinks <- function(data,
   #
 
   sampling_interval     <-
-    round(1000 / recHz) #compute the sampling time interval in milliseconds.
-  artifact_interval <- round(artifact_length / sampling_interval)
+    round(1000 / recordingFrequency_hz) #compute the sampling time interval in milliseconds.
+  artifact_interval <- round(maxArtifactLength_ms / sampling_interval)
 
   #added by Eli to define the lengths of missing we are willing to consider blinks (original code working with clean adult data) --can integrate with Liz's robustness code eventually
   blink_length_min      <-
-    blink_length_min_ms / sampling_interval     #set the minimum blink length threshold (in frames)
+    minBlinkLength_ms / sampling_interval     #set the minimum blink length threshold (in frames)
   blink_length_max      <-
-    blink_length_max_ms / sampling_interval    #set the maximum blink length threshold (in frames)
+    maxBlinkLength_ms / sampling_interval    #set the maximum blink length threshold (in frames)
 
   #gathering all pupil data: should be left and right pupil diameters
   pupil_data_types <- c(pupilLeft, pupilRight)

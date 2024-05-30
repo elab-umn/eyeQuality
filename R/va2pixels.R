@@ -1,18 +1,18 @@
 #' Calculate pixel position from visual angle
 #'
-#' @param va integer Visual angle to be converted to pixel space
-#' @param distZ integer distance Z from the screen in mm
-#' @param display.res display resolution in px
-#' @param display.dim display dimension in mm
+#' @param gazeVA integer Visual angle to be converted to pixel space
+#' @param distanceZ integer distance Z from the screen in mm
+#' @param displayResolution_px display resolution in px
+#' @param displayDimension_mm display dimension in mm
 #'
 #' @importFrom pracma deg2rad
 #'
 #' @return px the pixel value for the input VA
 #' @export
 #'
-va2pixels <- function(va, distZ, display.res, display.dim) {
+convertVisualAngToPixels <- function(gazeVA, distanceZ, displayResolution_px, displayDimension_mm) {
   px <-
-    (tan(deg2rad(va)) * distZ * display.res / display.dim) + (display.res /
+    (tan(deg2rad(gazeVA)) * distanceZ * displayResolution_px / displayDimension_mm) + (displayResolution_px /
                                                                 2)
   return(px)
 }

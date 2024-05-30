@@ -4,14 +4,14 @@
 \alias{plotGazeAndBlinks}
 \title{plotGazeAndBlinks}
 \usage{
-plotGazeAndBlinks(data, column, show_fixations = FALSE)
+plotGazeAndBlinks(data, column, showFixations = FALSE)
 }
 \arguments{
 \item{data}{dataframe}
 
 \item{column}{name of data column you want plotted as points/lines}
 
-\item{show_fixations}{boolean TRUE/FALSE to indicate if boxes of color to show fixations should be plotted}
+\item{showFixations}{boolean TRUE/FALSE to indicate if boxes of color to show fixations should be plotted}
 }
 \value{
 plots

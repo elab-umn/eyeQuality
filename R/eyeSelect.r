@@ -1,15 +1,15 @@
 #' Eye selection
 #'
 #' @param data dataframe
-#' @param eyeSelection "Maximize", "Strict", "Left", or "Right"
-#' @param gpLeft.X string column name for data containing left eye X-axis gazepoints
-#' @param gpLeft.Y string column name for data containing left eye Y-axis gazepoints
-#' @param gpRight.X string column name for data containing right eye X-axis gazepoints
-#' @param gpRight.Y string column name for data containing right eye Y-axis gazepoints
+#' @param eyeSelection_method "Maximize", "Strict", "Left", or "Right"
+#' @param gazeLeftX string column name for data containing left eye X-axis gazepoints
+#' @param gazeLeftY string column name for data containing left eye Y-axis gazepoints
+#' @param gazeRightX string column name for data containing right eye X-axis gazepoints
+#' @param gazeRightY string column name for data containing right eye Y-axis gazepoints
 #' @param pupilLeft string column name for data containing left eye pupil data
 #' @param pupilRight string column name for data containing right eye pupil data
-#' @param distLeft.Z string column name for data containing left eye distance from screen in mm (Z distance)
-#' @param distRight.Z string column name for data containing right eye distance from screen in mm  (Z distance)
+#' @param distanceLeftZ string column name for data containing left eye distance from screen in mm (Z distance)
+#' @param distanceRightZ string column name for data containing right eye distance from screen in mm  (Z distance)
 #' @param ... additional passed parameters from parent function
 #'
 #' @importFrom dplyr mutate
@@ -21,33 +21,33 @@
 #'
 eyeSelect <-
   function(data,
-           eyeSelection = "Maximize",
-           gpLeft.X = "gazeLeftX.int",
-           gpLeft.Y = "gazeLeftY.int",
-           gpRight.X = "gazeRightX.int",
-           gpRight.Y = "gazeRightY.int",
+           eyeSelection_method = "Maximize",
+           gazeLeftX = "gazeLeftX.int",
+           gazeLeftY = "gazeLeftY.int",
+           gazeRightX = "gazeRightX.int",
+           gazeRightY = "gazeRightY.int",
            pupilLeft = "pupilLeft.int",
            pupilRight = "pupilRight.int",
-           distLeft.Z = "distanceLeftZ.int",
-           distRight.Z = "distanceRightZ.int",
+           distanceLeftZ = "distanceLeftZ.int",
+           distanceRightZ = "distanceRightZ.int",
            ...) {
 
     # hacky way to get rid of "no visible binding for global variable" note
     distanceZ.eyeSelect <- gazeX.eyeSelect <- gazeY.eyeSelect <- pupil.eyeSelect <- NULL
 
     #Maximize option - replace NAs if data exists for one eye and not the other
-    if (eyeSelection == "Maximize") {
+    if (eyeSelection_method == "Maximize") {
       print("selecting eye based on maximized approach")
       #When one eye/pupil is == NA replace with the other eye/pupil
       #Gaze
       data[["gpLeft.X.temp"]] <-
-        ifelse(is.na(data[[gpLeft.X]]), data[[gpRight.X]], data[[gpLeft.X]])
+        ifelse(is.na(data[[gazeLeftX]]), data[[gazeRightX]], data[[gazeLeftX]])
       data[["gpLeft.Y.temp"]] <-
-        ifelse(is.na(data[[gpLeft.Y]]), data[[gpRight.Y]], data[[gpLeft.Y]])
+        ifelse(is.na(data[[gazeLeftY]]), data[[gazeRightY]], data[[gazeLeftY]])
       data[["gpRight.X.temp"]] <-
-        ifelse(is.na(data[[gpRight.X]]), data[[gpLeft.X]], data[[gpRight.X]])
+        ifelse(is.na(data[[gazeRightX]]), data[[gazeLeftX]], data[[gazeRightX]])
       data[["gpRight.Y.temp"]] <-
-        ifelse(is.na(data[[gpRight.Y]]), data[[gpLeft.Y]], data[[gpRight.Y]])
+        ifelse(is.na(data[[gazeRightY]]), data[[gazeLeftY]], data[[gazeRightY]])
       #Pupils
       data[["pupilLeft.temp"]] <-
         ifelse(is.na(data[[pupilLeft]]), data[[pupilRight]], data[[pupilLeft]])
@@ -55,40 +55,40 @@ eyeSelect <-
         ifelse(is.na(data[[pupilRight]]), data[[pupilLeft]], data[[pupilRight]])
       #Dist
       data[["distLeft.Z.temp"]] <-
-        ifelse(is.na(data[[distLeft.Z]]), data[[distRight.Z]], data[[distLeft.Z]])
+        ifelse(is.na(data[[distanceLeftZ]]), data[[distanceRightZ]], data[[distanceLeftZ]])
       data[["distRight.Z.temp"]] <-
-        ifelse(is.na(data[[distRight.Z]]), data[[distLeft.Z]], data[[distRight.Z]])
+        ifelse(is.na(data[[distanceRightZ]]), data[[distanceLeftZ]], data[[distanceRightZ]])
 
       #Set eye selection parameter
       #Gaze
       data[["gazeX.es.selection"]] <- ifelse(
-        !is.na(data[[gpLeft.X]]) &
-          !is.na(data[[gpRight.X]]),
+        !is.na(data[[gazeLeftX]]) &
+          !is.na(data[[gazeRightX]]),
         "mean_maximized",
         ifelse(
-          !is.na(data[[gpLeft.X]]) & is.na(data[[gpRight.X]]),
+          !is.na(data[[gazeLeftX]]) & is.na(data[[gazeRightX]]),
           "left_only",
           ifelse(
-            is.na(data[[gpLeft.X]]) & !is.na(data[[gpRight.X]]),
+            is.na(data[[gazeLeftX]]) & !is.na(data[[gazeRightX]]),
             "right_only",
-            ifelse(is.na(data[[gpLeft.X]]) &
-                     is.na(data[[gpRight.X]]), "both_na",
+            ifelse(is.na(data[[gazeLeftX]]) &
+                     is.na(data[[gazeRightX]]), "both_na",
                    "other_maximized")
           )
         )
       )
       data[["gazeY.es.selection"]] <- ifelse(
-        !is.na(data[[gpLeft.Y]]) &
-          !is.na(data[[gpRight.Y]]),
+        !is.na(data[[gazeLeftY]]) &
+          !is.na(data[[gazeRightY]]),
         "mean_maximized",
         ifelse(
-          !is.na(data[[gpLeft.Y]]) & is.na(data[[gpRight.Y]]),
+          !is.na(data[[gazeLeftY]]) & is.na(data[[gazeRightY]]),
           "left_only",
           ifelse(
-            is.na(data[[gpLeft.Y]]) & !is.na(data[[gpRight.Y]]),
+            is.na(data[[gazeLeftY]]) & !is.na(data[[gazeRightY]]),
             "right_only",
-            ifelse(is.na(data[[gpLeft.Y]]) &
-                     is.na(data[[gpRight.Y]]), "both_na",
+            ifelse(is.na(data[[gazeLeftY]]) &
+                     is.na(data[[gazeRightY]]), "both_na",
                    "other_maximized")
           )
         )
@@ -112,17 +112,17 @@ eyeSelect <-
       )
       #Dist
       data[["distZ.es.selection"]] <- ifelse(
-        !is.na(data[[distLeft.Z]]) &
-          !is.na(data[[distRight.Z]]),
+        !is.na(data[[distanceLeftZ]]) &
+          !is.na(data[[distanceRightZ]]),
         "mean_maximized",
         ifelse(
-          !is.na(data[[distLeft.Z]]) & is.na(data[[distRight.Z]]),
+          !is.na(data[[distanceLeftZ]]) & is.na(data[[distanceRightZ]]),
           "left_only",
           ifelse(
-            is.na(data[[distLeft.Z]]) & !is.na(data[[distRight.Z]]),
+            is.na(data[[distanceLeftZ]]) & !is.na(data[[distanceRightZ]]),
             "right_only",
-            ifelse(is.na(data[[distLeft.Z]]) &
-                     is.na(data[[distRight.Z]]), "both_na",
+            ifelse(is.na(data[[distanceLeftZ]]) &
+                     is.na(data[[distanceRightZ]]), "both_na",
                    "other_maximized")
           )
         )
@@ -153,35 +153,35 @@ eyeSelect <-
     }
 
     # Both Strict Option
-    else if (eyeSelection == "Strict") {
+    else if (eyeSelection_method == "Strict") {
       #Set eye selection parameter
       #Gaze
       data[["gazeX.es.selection"]] <- ifelse(
-        !is.na(data[[gpLeft.X]]) & !is.na(data[[gpRight.X]]),
+        !is.na(data[[gazeLeftX]]) & !is.na(data[[gazeRightX]]),
         "mean_strict",
         ifelse(
-          !is.na(data[[gpLeft.X]]) & is.na(data[[gpRight.X]]),
+          !is.na(data[[gazeLeftX]]) & is.na(data[[gazeRightX]]),
           "right_na",
           ifelse(
-            is.na(data[[gpLeft.X]]) & !is.na(data[[gpRight.X]]),
+            is.na(data[[gazeLeftX]]) & !is.na(data[[gazeRightX]]),
             "left_na",
-            ifelse(is.na(data[[gpLeft.X]]) &
-                     is.na(data[[gpRight.X]]), "both_na",
+            ifelse(is.na(data[[gazeLeftX]]) &
+                     is.na(data[[gazeRightX]]), "both_na",
                    "other_strict")
           )
         )
       )
       data[["gazeY.es.selection"]] <- ifelse(
-        !is.na(data[[gpLeft.Y]]) & !is.na(data[[gpRight.Y]]),
+        !is.na(data[[gazeLeftY]]) & !is.na(data[[gazeRightY]]),
         "mean_strict",
         ifelse(
-          !is.na(data[[gpLeft.Y]]) & is.na(data[[gpRight.Y]]),
+          !is.na(data[[gazeLeftY]]) & is.na(data[[gazeRightY]]),
           "right_na",
           ifelse(
-            is.na(data[[gpLeft.Y]]) & !is.na(data[[gpRight.Y]]),
+            is.na(data[[gazeLeftY]]) & !is.na(data[[gazeRightY]]),
             "left_na",
-            ifelse(is.na(data[[gpLeft.Y]]) &
-                     is.na(data[[gpRight.Y]]), "both_na",
+            ifelse(is.na(data[[gazeLeftY]]) &
+                     is.na(data[[gazeRightY]]), "both_na",
                    "other_strict")
           )
         )
@@ -205,16 +205,16 @@ eyeSelect <-
       )
       #Dist
       data[["distZ.es.selection"]] <- ifelse(
-        !is.na(data[[distLeft.Z]]) & !is.na(data[[distRight.Z]]),
+        !is.na(data[[distanceLeftZ]]) & !is.na(data[[distanceRightZ]]),
         "mean_strict",
         ifelse(
-          !is.na(data[[distLeft.Z]]) & is.na(data[[distRight.Z]]),
+          !is.na(data[[distanceLeftZ]]) & is.na(data[[distanceRightZ]]),
           "right_na",
           ifelse(
-            is.na(data[[distLeft.Z]]) & !is.na(data[[distRight.Z]]),
+            is.na(data[[distanceLeftZ]]) & !is.na(data[[distanceRightZ]]),
             "left_na",
-            ifelse(is.na(data[[distLeft.Z]]) &
-                     is.na(data[[distRight.Z]]), "both_na",
+            ifelse(is.na(data[[distanceLeftZ]]) &
+                     is.na(data[[distanceRightZ]]), "both_na",
                    "other_strict")
           )
         )
@@ -225,30 +225,30 @@ eyeSelect <-
         dplyr::rowwise() %>%
         mutate(
           gazeX.eyeSelect := mean(c(
-            !!rlang::sym(gpLeft.X),!!rlang::sym(gpRight.X)
+            !!rlang::sym(gazeLeftX),!!rlang::sym(gazeRightX)
           ), na.rm = FALSE),
           gazeY.eyeSelect := mean(c(
-            !!rlang::sym(gpLeft.Y),!!rlang::sym(gpRight.Y)
+            !!rlang::sym(gazeLeftY),!!rlang::sym(gazeRightY)
           ), na.rm = FALSE),
           # gazeX.eyeSelect := ifelse(!! rlang::sym(gpLeft.X) == !! rlang::sym(p))
           pupil.eyeSelect := mean(c(
             !!rlang::sym(pupilLeft),!!rlang::sym(pupilRight)
           ), na.rm = FALSE),
           distanceZ.eyeSelect := mean(c(
-            !!rlang::sym(distLeft.Z),!!rlang::sym(distRight.Z)
+            !!rlang::sym(distanceLeftZ),!!rlang::sym(distanceRightZ)
           ), na.rm = FALSE)
         )
     }
 
     # Single Eye Select Options
-    else if (eyeSelection == "Left") {
+    else if (eyeSelection_method == "Left") {
       data[["gazeX.es.selection"]] <-
-        case_when(!is.na(data[[gpLeft.X]]) ~ "left_only",
-                  is.na(data[[gpLeft.X]]) ~ "left_na",
+        case_when(!is.na(data[[gazeLeftX]]) ~ "left_only",
+                  is.na(data[[gazeLeftX]]) ~ "left_na",
                   TRUE ~ "other")
       data[["gazeY.es.selection"]] <-
-        case_when(!is.na(data[[gpLeft.Y]]) ~ "left_only",
-                  # is.na(data[[gpLeft.Y]]) ~ "left_na",
+        case_when(!is.na(data[[gazeLeftY]]) ~ "left_only",
+                   is.na(data[[gazeLeftY]]) ~ "left_na",
                   TRUE ~ "other")
       data[["pupil.es.selection"]] <-
         case_when(!is.na(data[[pupilLeft]]) ~ "left_only",
@@ -262,37 +262,37 @@ eyeSelect <-
       data <- data %>%
         dplyr::rowwise() %>%
         mutate(
-          .data$gazeX.eyeSelect := (!!rlang::sym(gpLeft.X)),
-          .data$gazeY.eyeSelect := (!!rlang::sym(gpLeft.Y)),
+          .data$gazeX.eyeSelect := (!!rlang::sym(gazeLeftX)),
+          .data$gazeY.eyeSelect := (!!rlang::sym(gazeLeftY)),
           .data$pupil.eyeSelect := (!!rlang::sym(pupilLeft)),
-          .data$distanceZ.eyeSelect := (!!rlang::sym(distLeft.Z))
+          .data$distanceZ.eyeSelect := (!!rlang::sym(distanceLeftZ))
         )
     }
-    else if (eyeSelection == "Right") {
+    else if (eyeSelection_method == "Right") {
       data[["gazeX.es.selection"]] <-
-        case_when(!is.na(data[[gpRight.X]]) ~ "right_only",
-                  is.na(data[[gpRight.X]]) ~ "right_na",
+        case_when(!is.na(data[[gazeRightX]]) ~ "right_only",
+                  is.na(data[[gazeRightX]]) ~ "right_na",
                   TRUE ~ "other")
       data[["gazeY.es.selection"]] <-
-        case_when(!is.na(data[[gpRight.Y]]) ~ "right_only",
-                  is.na(data[[gpRight.Y]]) ~ "right_na",
+        case_when(!is.na(data[[gazeRightY]]) ~ "right_only",
+                  is.na(data[[gazeRightY]]) ~ "right_na",
                   TRUE ~ "other")
       data[["pupil.es.selection"]] <-
         case_when(!is.na(data[[pupilRight]]) ~ "right_only",
                   is.na(data[[pupilRight]]) ~ "right_na",
                   TRUE ~ "other")
       data[["distZ.es.selection"]] <-
-        case_when(!is.na(data[[distRight.Z]]) ~ "right_only",
-                  is.na(data[[distRight.Z]]) ~ "right_na",
+        case_when(!is.na(data[[distanceRightZ]]) ~ "right_only",
+                  is.na(data[[distanceRightZ]]) ~ "right_na",
                   TRUE ~ "other")
 
       data <- data %>%
         rowwise() %>%
         mutate(
-          .data$gazeX.eyeSelect := (!!rlang::sym(gpRight.X)),
-          .data$gazeY.eyeSelect := (!!rlang::sym(gpRight.Y)),
+          .data$gazeX.eyeSelect := (!!rlang::sym(gazeRightX)),
+          .data$gazeY.eyeSelect := (!!rlang::sym(gazeRightY)),
           .data$pupil.eyeSelect := (!!rlang::sym(pupilRight)),
-          .data$distanceZ.eyeSelect := (!!rlang::sym(distRight.Z))
+          .data$distanceZ.eyeSelect := (!!rlang::sym(distanceRightZ))
         )
     }
 

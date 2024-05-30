@@ -1,4 +1,4 @@
-#' map column names from data input
+#' rename column names to standard format from data input based on recording software
 #'
 #' To account for varying column names between data export types we rename columns to the following standard set:
 #' (event, eventValue, recordingDuration_ms, resolutionHeight, resolutionWidth, eyeTrackerTimestamp,recordingTimestamp_ms, gazeLeftX, gazeLeftY, gazeRightX, gazeRightY, distanceLeftZ, distanceRightZ, pupilLeft, pupilRight, validityLeft, validityRight)
@@ -11,7 +11,7 @@
 #' @importFrom tidyr separate
 #'
 #' @return your reformatted data with standardized columns
-mapData <- function(data, software) {
+renameColumns <- function(data, software) {
   if (str_detect(software, "TobiiStudio")) {
     data <- data %>%
       # dplyr::rename(

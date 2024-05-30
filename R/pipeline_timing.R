@@ -1,4 +1,4 @@
-#' pipeline_timing - functions to calculation processing time for pipeline
+#' getPipelineTiming - functions to calculation processing time for pipeline
 #'
 #' @param start timestamp for start time
 #' @param stop timestamp for stop time
@@ -7,7 +7,7 @@
 #' @export
 #'
 
-pipeline_timing <- function(start, stop) {
+getPipelineTiming <- function(start, stop) {
   diff <- as.numeric(stop - start, units = "secs")
   time_diff <- dplyr::case_when(
     diff < 0.05 ~ sprintf("%0.5f ms", diff * 1000),

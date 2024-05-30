@@ -13,7 +13,7 @@ saveFiles(inputFile, data, events, timing, summaryData, batchName = NULL)
 
 \item{events}{dataframe of event markers, only tobii pro files}
 
-\item{timing}{list of internal run timing from run_preprocess}
+\item{timing}{list of internal run timing from eyeQuality function}
 
 \item{summaryData}{data from the calcualteOutputMetrics function}
 

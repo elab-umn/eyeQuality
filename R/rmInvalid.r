@@ -18,11 +18,7 @@
 #' #rmInvalidGP(mydataset2, "TobiiPro")
 rmInvalidGP <- function(data, software, threshold = 2, ...) {
   #Replace invalid gazepoints with NA
-  data <- ivFlag(data, eyeSelect = "left", software, threshold)
-  data <- ivFlag(data, eyeSelect = "right", software, threshold)
 
-  #Replace missing value codes with NA
-  data <- naFlag(data, software)
 
   return(data)
 }

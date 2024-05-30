@@ -1,7 +1,7 @@
 #' get_file_run_log_name
 #'
 #' @description
-#' `get_file_run_log_name()` gets file run log name
+#' `getFileRunLogName()` gets file run log name
 #'
 #' @param filename filename
 #' @param batchName text qualifier for the batch run
@@ -13,7 +13,7 @@
 #' @return list of ET derivatives data files to in BIDS-like directory
 #' @export
 #'
-get_file_run_log_name <- function(filename, batchName = NULL) {
+getFileRunLogName <- function(filename, batchName = NULL) {
   # sink(runlog, append = FALSE, type = "output")
   # base <- basename(path_ext_remove(x))
   base <-
