@@ -3,7 +3,7 @@
 #'
 #' @param data dataframe
 #' @param recHz recording Hz
-#' @param input_cols list of columns to smooth. Recommended to smooth gaze, pupil, and Z Dist columns
+#' @param columnsToSmooth list of columns to smooth. Recommended to smooth gaze, pupil, and Z Dist columns
 #' @param smooth_window_ms An integer, length of smoothing window in ms. Default 20 ms (Liz's dissertation pg 121)
 #' @param noise_reduction Boolean
 #' @param ... additional passed parameters from parent function
@@ -53,7 +53,7 @@ smoothGaze <-
       }
 
       #run smoothing on window for gaze, va, dist, pupils
-      for (sm in 1:length(input_cols)) {
+      for (sm in 1:length(columnsToSmooth)) {
         eCol <- columnsToSmooth[sm] #set interpolated column name
         sCol <- smooth_cols[sm] #set smoothed column name
         data[sCol] <-

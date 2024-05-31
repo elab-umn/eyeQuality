@@ -45,7 +45,7 @@ eyeQuality <- function(filepath,
     displayDimensionX_mm = displayDimensionX_mm,
     displayDimensionY_mm = displayDimensionY_mm,
     data = data,
-    eyeSelection = eyeSelection,
+    eyeSelection_method = eyeSelection_method,
     smoothGaze_boolean = smoothGaze_boolean,
     saveData = saveData,
     firstEvent = firstEvent,
@@ -198,6 +198,7 @@ eyeQuality <- function(filepath,
     }
   } else if (!isempty(timeStart) & !isempty(timeEnd)) {
     data <- setTimestamps(data, timeStart, timeEnd, ...)
+    runtime_setTimestamps <- getCurrentTime()
     print(
       stringr::str_glue(
         "--- 05b. setTimestamps complete based on timestamp inputs. (run duration: {getPipelineTiming(runtime_extractEventRows, runtime_setTimestamps)})"
@@ -234,9 +235,9 @@ eyeQuality <- function(filepath,
 
   #flag off-screen gazepoints (in pixel space)
   #get resolution
-  display.resx <-
+  displayResolutionX_px <-
     as.numeric(unique(data$resolutionWidth[!is.na(data$resolutionWidth)]))
-  display.resy <-
+  displayResolutionY_px <-
     as.numeric(unique(data$resolutionHeight[!is.na(data$resolutionHeight)]))
   #mark out-of-range offscreen gp for each eye
   data <-
@@ -272,10 +273,10 @@ eyeQuality <- function(filepath,
       "--- 08. removeOffscreenGaze complete. (run duration: {getPipelineTiming(runtime_removeInvalidGaze, runtime_removeOffscreenGaze)})"
     )
   )
-  # print_or_save(stringr::str_glue("--- 07. detectOffscreenGaze complete. (run duration: {getPipelineTiming(runtime_removeInvalidGaze, runtime_detectOffscreenGaze)})"), saveData, runtime_Log)
+  # print_or_save(stringr::str_glue("--- 07. removeOffscreenGaze complete. (run duration: {getPipelineTiming(runtime_removeInvalidGaze, runtime_removeOffscreenGaze)})"), saveData, runtime_Log)
 
   #interpolation
-  intCols <-
+  columnsToInterpolate <-
     c(
       "gazeLeftX",
       "gazeLeftY",
@@ -293,7 +294,7 @@ eyeQuality <- function(filepath,
       "--- 09. interpolateGaze complete. (run duration: {getPipelineTiming(runtime_removeOffscreenGaze, runtime_interpolateGaze)})"
     )
   )
-  # print_or_save(stringr::str_glue("--- 08. interpolateGaze complete. (run duration: {getPipelineTiming(runtime_detectOffscreenGaze, runtime_interpolateGaze)})"), saveData, runtime_Log)
+  # print_or_save(stringr::str_glue("--- 08. interpolateGaze complete. (run duration: {getPipelineTiming(runtime_removeOffscreenGaze, runtime_interpolateGaze)})"), saveData, runtime_Log)
 
   #blink detection
   data <-
@@ -426,7 +427,7 @@ eyeQuality <- function(filepath,
   ##smooth velocity
   velCols <-
     colnames(data)[grepl("_va_ms", colnames(data), ignore.case = TRUE)]  #get velocity columns
-  data <- smoothVelocity(data, recordingFrequency_hz, velocity, ...)
+  data <- smoothVelocity(data, recordingFrequency_hz, velocity = velCols, ...)
   runtime_smoothVelocity <- getCurrentTime()
   print(
     stringr::str_glue(
@@ -493,14 +494,13 @@ eyeQuality <- function(filepath,
   times <- list(
     start = runtime_start,
     loadData = runtime_loadData,
-    detectSourceType = runtime_detectImportSourceType,
+    detectImportSourceType = runtime_detectImportSourceType,
     standardizeColumnNames = runtime_standardizeColumnNames,
     extractEventRows = runtime_extractEventRows,
     setTimestamps = runtime_setTimestamps,
     calculateFrequency_hz = runtime_calculateFrequency_hz,
     removeInvalidGaze = runtime_removeInvalidGaze,
-    # detectOffscreenGaze = runtime_detectOffscreenGaze,
-    detectOffscreenGaze = runtime_rmOffscreenGaze,
+    removeOffscreenGaze = runtime_removeOffscreenGaze,
     interpolateGaze = runtime_interpolateGaze,
     classifyBlinks = runtime_classifyBlinks,
     eyeSelection = runtime_eyeSelection,
@@ -517,7 +517,7 @@ eyeQuality <- function(filepath,
   durations <- list(
     loadData_duration = calculateTimeDifference(runtime_start, runtime_loadData, units =
                                               "secs"),
-    detectSourceType_duration = calculateTimeDifference(runtime_loadData, runtime_detectImportSourceType, units =
+    detectImportSourceType_duration = calculateTimeDifference(runtime_loadData, runtime_detectImportSourceType, units =
                                                       "secs"),
     standardizeColumnNames_duration = calculateTimeDifference(runtime_detectImportSourceType, runtime_standardizeColumnNames, units =
                                                 "secs"),
@@ -529,12 +529,8 @@ eyeQuality <- function(filepath,
                                             "secs"),
     removeInvalidGaze_duration = calculateTimeDifference(runtime_calculateFrequency_hz, runtime_removeInvalidGaze, units =
                                                  "secs"),
-    # detectOffscreenGaze_duration = calculateTimeDifference(runtime_removeInvalidGaze, runtime_detectOffscreenGaze, units =
-    #                                                    "secs"),
-    detectOffscreenGaze_duration = calculateTimeDifference(runtime_removeInvalidGaze, runtime_removeOffscreenGaze, units =
+    removeOffscreenGaze_duration = calculateTimeDifference(runtime_removeInvalidGaze, runtime_removeOffscreenGaze, units =
                                                        "secs"),
-    # interpolateGaze_duration = calculateTimeDifference(runtime_detectOffscreenGaze, runtime_interpolateGaze, units =
-    #                                           "secs"),
     interpolateGaze_duration = calculateTimeDifference(runtime_removeOffscreenGaze, runtime_interpolateGaze, units =
                                               "secs"),
     classifyBlinks_duration = calculateTimeDifference(runtime_interpolateGaze, runtime_classifyBlinks, units =

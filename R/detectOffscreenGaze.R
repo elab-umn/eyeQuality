@@ -23,8 +23,8 @@ detectOffscreenGaze <-
     offscreen.gp <- rep(NA, length(data[[gazeX]]))
     offscreen.gp <-
       dplyr::if_else(
-        !between(data[[gazeX]], minDisplayResolutionX_px, displayResolutionX) |
-          !between(data[[gazeY]], minDisplayResolutionY_px, displayResolutionY),
+        !between(data[[gazeX]], minDisplayResolutionX_px, displayResolutionX_px) |
+          !between(data[[gazeY]], minDisplayResolutionY_px, displayResolutionY_px),
         "offscreen","onscreen"
       )
 

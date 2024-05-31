@@ -19,7 +19,7 @@
 #' @return data
 #' @export
 #'
-eyeSelect <-
+eyeSelection <-
   function(data,
            eyeSelection_method = "Maximize",
            gazeLeftX = "gazeLeftX.int",

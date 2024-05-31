@@ -34,7 +34,7 @@ interpolateGaze <-
     #na.approx replaces NAs by interpolation
     for (int in 1:length(columnsToInterpolate)) {
       n <- newCols[int]
-      i <- intCols[int]
+      i <- columnsToInterpolate[int]
       data[[n]] <-
         round(na.approx(data[[i]], na.rm = FALSE, maxgap = maxGapPoints), 2)
     }

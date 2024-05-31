@@ -14,7 +14,7 @@
 #' @return outputs_dfs
 #' @export
 #'
-classifierGazeIVT <-
+classifyGazeIVT <-
   function(data,
            velocity,
            gazeX_va,
