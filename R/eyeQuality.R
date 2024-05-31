@@ -9,8 +9,8 @@
 #' @param maxValidityThreshold a numeric (0, 1, 2, 3, or 4) describing what validity rating is considered acceptable - Only applicable if software = "TobiiStudio"
 #' @param saveData Boolean indicating if we should suppress output, and save data to files
 #' @param includeIntermediates Boolean indicating if column outputs from all intermediate steps of the preprocessing should be included. Default = FALSE
-#' @param firstEvent optional String of the first event marker to include. Default NULL
-#' @param lastEvent optional String of the last event marker to include. Default NULL
+#' @param studioEvents optional list of two values specifying the start and ending event labels for Tobii Studio files, c(startEventName, endEventName) . Default NULL
+#' @param proEvents optional list of two values specifying the start and ending event labels for Tobii Pro files, c(startEventName, endEventName) . Default NULL
 #' @param timeStart optional Recording Timestamp of the first data point to include. Default NULL
 #' @param timeEnd optional Recording Timestamp of the last data point to include. Default NULL
 #' @param batchName optional string to append output files with a specific batch run label. Default NULL
@@ -31,8 +31,8 @@ eyeQuality <- function(filepath,
                            maxValidityThreshold = 2,
                            saveData = FALSE,
                            includeIntermediates = FALSE,
-                           firstEvent = NULL,
-                           lastEvent = NULL,
+                           studioEvents = NULL,
+                           proEvents = NULL,
                            timeStart = NULL,
                            timeEnd = NULL,
                            batchName = NULL,
@@ -48,8 +48,8 @@ eyeQuality <- function(filepath,
     eyeSelection_method = eyeSelection_method,
     smoothGaze_boolean = smoothGaze_boolean,
     saveData = saveData,
-    firstEvent = firstEvent,
-    lastEvent = lastEvent,
+    studioEvents = studioEvents,
+    proEvents = proEvents,
     timeStart = timeStart,
     timeEnd = timeEnd
   )
@@ -167,36 +167,47 @@ eyeQuality <- function(filepath,
     stop()
   }
 
-  #Specify start and end timestamp for task
-  if (!isempty(firstEvent) & !isempty(lastEvent)) {
-    taskTimes <-
-      getEventTimes(eventData,
-                    firstEvent = firstEvent,
-                    lastEvent = lastEvent,
-                    ...)
-    if (length(taskTimes) == 2 &&
-        !anyNA(taskTimes) && taskTimes[[1]] < taskTimes[[2]]) {
-      data <- setTimestamps(data, taskTimes[[1]], taskTimes[[2]], ...)
-      runtime_setTimestamps <- getCurrentTime()
-      print(
-        stringr::str_glue(
-          "--- 05a. setTimestamps complete based on event parameter inputs. (run duration: {getPipelineTiming(runtime_extractEventRows, runtime_setTimestamps)})"
-        )
-      )
-      # print_or_save(stringr::str_glue("--- 04a. setTimestamps complete based on event parameter inputs. (run duration: {getPipelineTiming(runtime_extractEventRows, runtime_setTimestamps)})"), saveData, runtime_Log)
-    } else {
-      runtime_setTimestamps <- getCurrentTime()
-      print(
-        paste0(
-          "Start or end timestamps could not be identified. Pre-processing for file ",
-          filepath,
-          " aborted."
-        )
-      )
-      # print_or_save(paste0("Start or end timestamps could not be identified. Pre-processing for file ", filepath, " aborted."), saveData, runtime_Log)
-      stop()
+#get specific time range to process
+  if (!isempty(studioEvents) && !isempty(proEvents)) {
+  #set correct event identity based on software version
+    if (software == "TobiiStudio"){
+      firstEvent <- studioEvents[1]
+      lastEvent <- studioEvents[2]
+    } else if (software == "TobiiPro"){
+      firstEvent <- proEvents[1]
+      lastEvent <- proEvents[2]
     }
+    #Specify start and end timestamp for task
+      taskTimes <-
+        getEventTimes(eventData,
+                      firstEvent = firstEvent,
+                      lastEvent = lastEvent,
+                      ...)
+      if (length(taskTimes) == 2 &&
+          !anyNA(taskTimes) && taskTimes[[1]] < taskTimes[[2]]) {
+        data <- setTimestamps(data, taskTimes[[1]], taskTimes[[2]], ...)
+        runtime_setTimestamps <- getCurrentTime()
+        print(
+          stringr::str_glue(
+            "--- 05a. setTimestamps complete based on event parameter inputs. (run duration: {getPipelineTiming(runtime_extractEventRows, runtime_setTimestamps)})"
+          )
+        )
+        # print_or_save(stringr::str_glue("--- 04a. setTimestamps complete based on event parameter inputs. (run duration: {getPipelineTiming(runtime_extractEventRows, runtime_setTimestamps)})"), saveData, runtime_Log)
+      } else {
+        #if event cannot be identified
+        runtime_setTimestamps <- getCurrentTime()
+        print(
+          paste0(
+            "Start or end timestamps could not be identified. Pre-processing for file ",
+            filepath,
+            " aborted."
+          )
+        )
+        # print_or_save(paste0("Start or end timestamps could not be identified. Pre-processing for file ", filepath, " aborted."), saveData, runtime_Log)
+        stop()
+      }
   } else if (!isempty(timeStart) & !isempty(timeEnd)) {
+    #set based on input time stamps
     data <- setTimestamps(data, timeStart, timeEnd, ...)
     runtime_setTimestamps <- getCurrentTime()
     print(
@@ -206,6 +217,7 @@ eyeQuality <- function(filepath,
     )
     # print_or_save(stringr::str_glue("--- 04b. setTimestamps complete based on timestamp inputs. (run duration: {getPipelineTiming(runtime_extractEventRows, runtime_setTimestamps)})"), saveData, runtime_Log)
   } else {
+    #run whole file if no time range or events are specified
     runtime_setTimestamps <- getCurrentTime()
     print("No time range specified. Running pre-processing on full data file.")
     # print_or_save("No time range specified. Running pre-processing on full data file.", saveData, runtime_Log)
