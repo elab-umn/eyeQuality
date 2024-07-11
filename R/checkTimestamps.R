@@ -6,7 +6,7 @@
 #' @return logical indicating TRUE if timestamps are chronologically ordered, FALSE if disordered
 #' @export
 #'
-checkTimestamps <- function(data, timestamps) {
+checkOrderedTimestamps <- function(data, timestamps) {
   ordered_ts <- sort(data[[timestamps]])
   ordered <- identical(data[[timestamps]], ordered_ts)
   return(ordered)

@@ -2,7 +2,6 @@
 % Please edit documentation in R/eyeQuality-package.R
 \docType{package}
 \name{eyeQuality-package}
-\alias{eyeQuality}
 \alias{eyeQuality-package}
 \title{eyeQuality: What the Package Does (One Line, Title Case)}
 \description{

@@ -2,7 +2,7 @@
 #'
 #' @param data dataframe
 #' @param column name of data column you want plotted as points/lines
-#' @param show_fixations boolean TRUE/FALSE to indicate if boxes of color to show fixations should be plotted
+#' @param showFixations boolean TRUE/FALSE to indicate if boxes of color to show fixations should be plotted
 #'
 #' @import ggplot2
 #' @importFrom rlang .data
@@ -10,11 +10,11 @@
 #' @return plots
 #' @export
 #'
-plotGazeAndBlinks <- function(data, column, show_fixations = FALSE) {
+plotGazeAndBlinks <- function(data, column, showFixations = FALSE) {
 
 
   ivt_ranges <- data %>% getSequenceGroupEndpoints("IVT.classification")
-  if(show_fixations == FALSE) {
+  if(showFixations == FALSE) {
     ivt_ranges <- ivt_ranges %>% filter(.data$group == "missing")
   }
   blink_ranges <- data %>%

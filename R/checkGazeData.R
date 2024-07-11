@@ -7,12 +7,12 @@
 #' @return dataExists a Boolean indicating if any valid gaze data exists
 #' @export
 #'
-checkGazeData <- function(data, gazeCol,...){
+checkGazeDataExists <- function(data, gazeColumn,...){
   dataExists <- TRUE
   if (nrow(data) == 0) {
     dataExists <- FALSE
   }
-  if (sum(!is.na(data[[gazeCol]]))==0) {
+  if (sum(!is.na(data[[gazeColumn]]))==0) {
     dataExists <- FALSE
   }
   return(dataExists)

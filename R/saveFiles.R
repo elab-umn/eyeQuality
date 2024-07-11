@@ -3,7 +3,7 @@
 #' @param inputFile string filepath of the input file, to generate save file names
 #' @param data dataframe
 #' @param events dataframe of event markers, only tobii pro files
-#' @param timing list of internal run timing from run_preprocess
+#' @param timing list of internal run timing from eyeQuality function
 #' @param summaryData data from the calcualteOutputMetrics function
 #' @param batchName batch name to insert into save files, useful for running batches with different parameters and/or for specific trials
 #' @import dplyr
