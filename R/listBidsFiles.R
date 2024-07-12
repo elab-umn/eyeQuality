@@ -4,6 +4,7 @@
 #' @param subjectPattern_regex regex match pattern for subjects, or NULL if you are not using subject directories in 'directory' path
 #' @param sessionPattern_regex regex match pattern for sessions, or NULL if you are not using session directories in 'subject_directory' paths
 #' @param modalityPattern_regex regex match pattern for specific modality, or NULL which will default to searching '.tsv' files
+#' @param recursiveSearch boolean to search file directory recursively
 #' @param ... additional parameters that may get passed from wrapper functions
 #'
 #' @importFrom stringr str_glue
@@ -16,7 +17,7 @@ listBidsFiles <-
            subjectPattern_regex = "sub-[A-Z0-9]+",
            sessionPattern_regex = "ses-[0-9]+",
            modalityPattern_regex = NULL,
-           recursive_search = FALSE,
+           recursiveSearch = FALSE,
            ...) {
     # check to see if there are any nested folders?
     subject_dirs <-
@@ -89,7 +90,7 @@ listBidsFiles <-
         tsv_files <- list.files(
           filedir,
           pattern = "\\.tsv$",
-          recursive = recursive_search,
+          recursive = recursiveSearch,
           full.names = TRUE
         )
         files <- c(files, tsv_files)
@@ -97,7 +98,7 @@ listBidsFiles <-
         tsv_files <- list.files(
           filedir,
           pattern = modalityPattern_regex,
-          recursive = recursive_search,
+          recursive = recursiveSearch,
           full.names = TRUE
         )
         files <- c(files, tsv_files)
@@ -108,7 +109,7 @@ listBidsFiles <-
       print("WARNING: No files found. If you expect to have data files in your directory, please check your directory structure.")
       print("Confirm subjectPattern_regex and session_Pattern_regex correctly find file(s) in your subject/session directories.")
       print("Otherwise specify a modalityPattern_regex with the naming convention for your eyetracking files.")
-      print("If you have 'subject_dir/session_dir/additional_directory/data_files.tsv' structure, specify recursive_search = TRUE.")
+      print("If you have 'subject_dir/session_dir/additional_directory/data_files.tsv' structure, specify recursiveSearch = TRUE.")
 
       return(unlist(files))
     } else {
