@@ -31,7 +31,7 @@ eyeQualityBatch <-
     #save outputs to file at root of directoryBIDS
     # sinkToOutputFile(batch_run_summary)
 
-    starttime <- get_time()
+    starttime <- getCurrentTime()
 
     tsv_files_to_batch_process <-
       listBidsFiles(directoryBIDS, ...)
@@ -117,7 +117,7 @@ eyeQualityBatch <-
     # Stop the cluster
     parallel::stopCluster(cl)
 
-    endtime <- get_time()
+    endtime <- getCurrentTime()
 
 
     # print(stringr::str_glue("--- BATCH PREPROCESSING COMPLETE! (run duration: {getPipelineTiming(starttime, endtime)})"))
