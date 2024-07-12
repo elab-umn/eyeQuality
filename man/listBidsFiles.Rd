@@ -9,17 +9,20 @@ listBidsFiles(
   subjectPattern_regex = "sub-[A-Z0-9]+",
   sessionPattern_regex = "ses-[0-9]+",
   modalityPattern_regex = NULL,
+  recursiveSearch = FALSE,
   ...
 )
 }
 \arguments{
 \item{directory}{path for data file as .tsv}
 
-\item{subjectPattern_regex}{regex match pattern for subjects}
+\item{subjectPattern_regex}{regex match pattern for subjects, or NULL if you are not using subject directories in 'directory' path}
 
-\item{sessionPattern_regex}{regex match pattern for sessions}
+\item{sessionPattern_regex}{regex match pattern for sessions, or NULL if you are not using session directories in 'subject_directory' paths}
 
-\item{modalityPattern_regex}{regex match pattern for specific modality}
+\item{modalityPattern_regex}{regex match pattern for specific modality, or NULL which will default to searching '.tsv' files}
+
+\item{recursiveSearch}{boolean to search file directory recursively}
 
 \item{...}{additional parameters that may get passed from wrapper functions}
 }

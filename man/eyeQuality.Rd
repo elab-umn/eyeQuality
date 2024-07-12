@@ -14,8 +14,8 @@ eyeQuality(
   maxValidityThreshold = 2,
   saveData = FALSE,
   includeIntermediates = FALSE,
-  firstEvent = NULL,
-  lastEvent = NULL,
+  studioEvents = NULL,
+  proEvents = NULL,
   timeStart = NULL,
   timeEnd = NULL,
   batchName = NULL,
@@ -41,9 +41,9 @@ eyeQuality(
 
 \item{includeIntermediates}{Boolean indicating if column outputs from all intermediate steps of the preprocessing should be included. Default = FALSE}
 
-\item{firstEvent}{optional String of the first event marker to include. Default NULL}
+\item{studioEvents}{optional list of two values specifying the start and ending event labels for Tobii Studio files, c(startEventName, endEventName) . Default NULL}
 
-\item{lastEvent}{optional String of the last event marker to include. Default NULL}
+\item{proEvents}{optional list of two values specifying the start and ending event labels for Tobii Pro files, c(startEventName, endEventName) . Default NULL}
 
 \item{timeStart}{optional Recording Timestamp of the first data point to include. Default NULL}
 

@@ -7,10 +7,13 @@
 listBidsDerivativeFiles(
   directory,
   subjectPattern_regex = "sub-[A-Z0-9]+",
-  session_pattern = "ses-[0-9]+",
-  derivativesPattern_regex = "derivatives",
-  pipeline_pattern = "eyeQuality-v1",
-  modalityPattern_regex = NULL
+  sessionPattern_regex = "ses-[0-9]+",
+  modalityPattern_regex = NULL,
+  recursiveSearch = FALSE,
+  derivativesDirectory_name = "derivatives",
+  pipelineDirectory_name = "eyeQuality-v1",
+  derivativePattern_regex = NULL,
+  ...
 )
 }
 \arguments{
@@ -18,13 +21,19 @@ listBidsDerivativeFiles(
 
 \item{subjectPattern_regex}{regex match pattern for subjects}
 
-\item{derivativesPattern_regex}{regex match pattern for derivatives}
-
-\item{pipeline_pattern}{regex match pattern for pipeline}
+\item{sessionPattern_regex}{regex match pattern for sessions}
 
 \item{modalityPattern_regex}{regex match pattern for specific modality}
 
-\item{sessionPattern_regex}{regex match pattern for sessions}
+\item{recursiveSearch}{boolean to search file directory recursively}
+
+\item{derivativesDirectory_name}{name for derivatives directory, default 'derivatives'}
+
+\item{pipelineDirectory_name}{name for pipeline processing directory, default 'eyeQuality-v1'}
+
+\item{derivativePattern_regex}{regex match pattern for specific derivative files}
+
+\item{...}{additional parameters that may get passed from wrapper functions}
 }
 \value{
 list of ET derivatives data files to in BIDS-like directory
