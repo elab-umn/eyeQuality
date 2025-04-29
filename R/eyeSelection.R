@@ -255,17 +255,17 @@ eyeSelection <-
                   is.na(data[[pupilLeft]]) ~ "left_na",
                   TRUE ~ "other")
       data[["distZ.es.selection"]] <-
-        case_when(!is.na(data[[distLeft.Z]]) ~ "left_only",
-                  is.na(data[[distLeft.Z]]) ~ "left_na",
+        case_when(!is.na(data[[distanceLeftZ]]) ~ "left_only",
+                  is.na(data[[distanceLeftZ]]) ~ "left_na",
                   TRUE ~ "other")
 
       data <- data %>%
         dplyr::rowwise() %>%
         mutate(
-          .data$gazeX.eyeSelect := (!!rlang::sym(gazeLeftX)),
-          .data$gazeY.eyeSelect := (!!rlang::sym(gazeLeftY)),
-          .data$pupil.eyeSelect := (!!rlang::sym(pupilLeft)),
-          .data$distanceZ.eyeSelect := (!!rlang::sym(distanceLeftZ))
+          gazeX.eyeSelect = (!!rlang::sym(gazeLeftX)),
+          gazeY.eyeSelect = (!!rlang::sym(gazeLeftY)),
+          pupil.eyeSelect = (!!rlang::sym(pupilLeft)),
+          distanceZ.eyeSelect = (!!rlang::sym(distanceLeftZ))
         )
     }
     else if (eyeSelection_method == "Right") {
@@ -289,10 +289,10 @@ eyeSelection <-
       data <- data %>%
         rowwise() %>%
         mutate(
-          .data$gazeX.eyeSelect := (!!rlang::sym(gazeRightX)),
-          .data$gazeY.eyeSelect := (!!rlang::sym(gazeRightY)),
-          .data$pupil.eyeSelect := (!!rlang::sym(pupilRight)),
-          .data$distanceZ.eyeSelect := (!!rlang::sym(distanceRightZ))
+          gazeX.eyeSelect = (!!rlang::sym(gazeRightX)),
+          gazeY.eyeSelect = (!!rlang::sym(gazeRightY)),
+          pupil.eyeSelect = (!!rlang::sym(pupilRight)),
+          distanceZ.eyeSelect = (!!rlang::sym(distanceRightZ))
         )
     }
 

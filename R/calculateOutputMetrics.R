@@ -102,35 +102,36 @@ calculateOutputMetrics <- function(data) {
           0
         )
       ),
+      # #COMMENTED OUT LH - created variables are not used and .temp columns break in other eyeselect protocols
       #eye select
-      total_rows_eye_select_LeftX = sum(
-        ifelse(
-          .data$gazeLeftX.int %>% replace(is.na(.data), 0) != .data$gpLeft.X.temp %>% replace(is.na(.data), 0),
-          1,
-          0
-        )
-      ),
-      total_rows_eye_select_RightX = sum(
-        ifelse(
-          .data$gazeRightX.int %>% replace(is.na(.data), 0) != .data$gpRight.X.temp %>% replace(is.na(.data), 0),
-          1,
-          0
-        )
-      ),
-      total_rows_eye_select_LeftY = sum(
-        ifelse(
-          .data$gazeLeftY.int %>% replace(is.na(.data), 0) != .data$gpLeft.Y.temp %>% replace(is.na(.data), 0),
-          1,
-          0
-        )
-      ),
-      total_rows_eye_select_RightY = sum(
-        ifelse(
-          .data$gazeRightY.int %>% replace(is.na(.data), 0) != .data$gpRight.Y.temp %>% replace(is.na(.data), 0),
-          1,
-          0
-        )
-      ),
+      # total_rows_eye_select_LeftX = sum(
+      #   ifelse(
+      #     .data$gazeLeftX.int %>% replace(is.na(.data), 0) != .data$gpLeft.X.temp %>% replace(is.na(.data), 0),
+      #     1,
+      #     0
+      #   )
+      # ),
+      # total_rows_eye_select_RightX = sum(
+      #   ifelse(
+      #     .data$gazeRightX.int %>% replace(is.na(.data), 0) != .data$gpRight.X.temp %>% replace(is.na(.data), 0),
+      #     1,
+      #     0
+      #   )
+      # ),
+      # total_rows_eye_select_LeftY = sum(
+      #   ifelse(
+      #     .data$gazeLeftY.int %>% replace(is.na(.data), 0) != .data$gpLeft.Y.temp %>% replace(is.na(.data), 0),
+      #     1,
+      #     0
+      #   )
+      # ),
+      # total_rows_eye_select_RightY = sum(
+      #   ifelse(
+      #     .data$gazeRightY.int %>% replace(is.na(.data), 0) != .data$gpRight.Y.temp %>% replace(is.na(.data), 0),
+      #     1,
+      #     0
+      #   )
+      # ),
       total_rows_eye_select_X_LeftOnly = sum(ifelse(
         .data$gazeX.es.selection == "left_only", 1, 0
       )),

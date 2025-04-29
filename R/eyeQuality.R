@@ -571,15 +571,15 @@ eyeQuality <- function(filepath,
 
 #Clean up final dataset output
 
-  #remove temporary eye selection calculation columns
-  tempCols <- c(colnames(data)[grepl("\\.temp$", colnames(data), ignore.case = TRUE)],
-                colnames(data)[grepl("\\.es.selection$", colnames(data), ignore.case = TRUE)])
-  for (t in tempCols) {
-    data[[t]] <- NULL
-  }
-
   #remove columns created in preprocessing pipeline that are not the final outputs / categories
   if (!includeIntermediates){
+    #remove temporary eye selection calculation columns
+    tempCols <- c(colnames(data)[grepl("\\.temp$", colnames(data), ignore.case = TRUE)],
+                  colnames(data)[grepl("\\.es.selection$", colnames(data), ignore.case = TRUE)])
+    for (t in tempCols) {
+      data[[t]] <- NULL
+    }
+    
     data <- removeIntermediateCols(data, ...)
   }
 
