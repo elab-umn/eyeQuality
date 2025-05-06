@@ -41,8 +41,8 @@ generateEyeTrackingPlots <- function(data) {
   gazeHeatmap <- plotGazeHeatmap(data)
 
   # Get final plot of smoothed gaze for X and Y positions
-  gaze_X <- data %>% plotGazeAndBlinks("gazeX.preprocessed_px", showFixations = TRUE) + ggplot2::labs(y="Gaze x-position")
-  gaze_Y <- data %>% plotGazeAndBlinks("gazeY.preprocessed_px", showFixations = TRUE) + ggplot2::labs(y="Gaze y-position")
+  gaze_X <- data %>% plotGazeAndBlinks("gazeX.preprocessed_px", showFixations = TRUE) + ggplot2::labs(x = "Recording Timestamp (ms)", y="Gaze x-position")
+  gaze_Y <- data %>% plotGazeAndBlinks("gazeY.preprocessed_px", showFixations = TRUE) + ggplot2::labs(x = "Recording Timestamp (ms)", y="Gaze y-position")
 
   gazePlot <- ggpubr::ggarrange(
     gaze_X,
