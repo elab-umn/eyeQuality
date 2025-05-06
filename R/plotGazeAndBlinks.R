@@ -53,7 +53,7 @@ plotGazeAndBlinks <- function(data, column, showFixations = FALSE) {
     ggplot2::theme_bw() +
     ggplot2::labs(
       # title = "Gaze X (Smoothed)",
-       x = "Recording Timestamp (ms)",
+      # x = "Recording Timestamp (ms)",
       # y = "x position",
       fill = NULL
     )
